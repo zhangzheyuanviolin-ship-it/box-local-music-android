@@ -1,7 +1,13 @@
 package com.boxlocal.music;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -12,6 +18,8 @@ import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.util.List;
 
 public class MainActivity extends Activity {
@@ -19,6 +27,10 @@ public class MainActivity extends Activity {
   private LinearLayout root;
   private TextView statusView;
   private volatile ModelDownload activeDownload;
+  private volatile boolean activeGeneration;
+  private File lastGeneratedFile;
+  private Uri lastExportedUri;
+  private MediaPlayer mediaPlayer;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -124,18 +136,46 @@ public class MainActivity extends Activity {
     root.addView(generate, matchWrap());
     generate.setOnClickListener(
         v ->
-            statusView.setText(
-                "Generation core is blocked until the official Box LiteRT inference classes are ported. This build intentionally does not fake Box output with procedural audio."));
+            startGeneration(
+                model,
+                prompt.getText().toString(),
+                model.minDurationSec + duration.getProgress(),
+                generate));
+
+    Button play = new Button(this);
+    play.setText("Play last generated WAV");
+    root.addView(play, matchWrap());
+    play.setOnClickListener(v -> playLastGenerated());
 
     Button export = new Button(this);
     export.setText("Export last generated WAV");
     root.addView(export, matchWrap());
-    export.setOnClickListener(v -> statusView.setText("No generated WAV is available yet."));
+    export.setOnClickListener(
+        v -> {
+          try {
+            Uri uri = exportLastGenerated();
+            statusView.setText("Exported WAV: " + uri);
+          } catch (Exception e) {
+            statusView.setText("Export failed: " + e.getMessage());
+          }
+        });
 
     Button share = new Button(this);
     share.setText("Share last generated WAV");
     root.addView(share, matchWrap());
-    share.setOnClickListener(v -> statusView.setText("No generated WAV is available yet."));
+    share.setOnClickListener(
+        v -> {
+          try {
+            Uri uri = exportLastGenerated();
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("audio/wav");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, "Share WAV"));
+          } catch (Exception e) {
+            statusView.setText("Share failed: " + e.getMessage());
+          }
+        });
 
     Button back = new Button(this);
     back.setText("Back to model list");
@@ -193,6 +233,106 @@ public class MainActivity extends Activity {
     download.start();
   }
 
+  private void startGeneration(ModelSpec model, String prompt, int durationSeconds, Button button) {
+    if (activeGeneration) {
+      statusView.setText("Generation is already running.");
+      return;
+    }
+    if (prompt.trim().isEmpty()) {
+      statusView.setText("Prompt is empty.");
+      return;
+    }
+    activeGeneration = true;
+    button.setEnabled(false);
+    statusView.setText("Loading official Box SoundGen engine...");
+    new Thread(
+            () -> {
+              try {
+                String output =
+                    OfficialSoundGenEngine.generate(
+                        this,
+                        model,
+                        modelDir(model),
+                        prompt.trim(),
+                        durationSeconds,
+                        progress ->
+                            runOnUiThread(
+                                () ->
+                                    statusView.setText(
+                                        "Generating "
+                                            + model.name
+                                            + ": "
+                                            + String.format(java.util.Locale.US, "%.0f%%", progress * 100.0f))));
+                lastGeneratedFile = new File(output);
+                lastExportedUri = null;
+                runOnUiThread(
+                    () -> {
+                      statusView.setText("Generated WAV: " + lastGeneratedFile.getAbsolutePath());
+                      playLastGenerated();
+                    });
+              } catch (Exception e) {
+                runOnUiThread(() -> statusView.setText("Generation failed: " + e.getMessage()));
+              } finally {
+                activeGeneration = false;
+                runOnUiThread(() -> button.setEnabled(true));
+              }
+            })
+        .start();
+  }
+
+  private void playLastGenerated() {
+    try {
+      if (lastGeneratedFile == null || !lastGeneratedFile.isFile()) {
+        statusView.setText("No generated WAV is available yet.");
+        return;
+      }
+      if (mediaPlayer != null) {
+        mediaPlayer.release();
+      }
+      mediaPlayer = new MediaPlayer();
+      mediaPlayer.setDataSource(lastGeneratedFile.getAbsolutePath());
+      mediaPlayer.prepare();
+      mediaPlayer.start();
+      statusView.setText("Playing: " + lastGeneratedFile.getName());
+    } catch (Exception e) {
+      statusView.setText("Playback failed: " + e.getMessage());
+    }
+  }
+
+  private Uri exportLastGenerated() throws Exception {
+    if (lastGeneratedFile == null || !lastGeneratedFile.isFile()) {
+      throw new IllegalStateException("No generated WAV is available yet.");
+    }
+    if (lastExportedUri != null) {
+      return lastExportedUri;
+    }
+    ContentValues values = new ContentValues();
+    values.put(MediaStore.Audio.Media.DISPLAY_NAME, lastGeneratedFile.getName());
+    values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/wav");
+    values.put(MediaStore.Audio.Media.RELATIVE_PATH, Environment.DIRECTORY_MUSIC + "/BoxLocalMusic");
+    values.put(MediaStore.Audio.Media.IS_PENDING, 1);
+    Uri uri = getContentResolver().insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, values);
+    if (uri == null) {
+      throw new IllegalStateException("Cannot create MediaStore item.");
+    }
+    try (FileInputStream input = new FileInputStream(lastGeneratedFile);
+        OutputStream output = getContentResolver().openOutputStream(uri)) {
+      if (output == null) {
+        throw new IllegalStateException("Cannot open MediaStore output.");
+      }
+      byte[] buffer = new byte[1024 * 256];
+      int read;
+      while ((read = input.read(buffer)) >= 0) {
+        output.write(buffer, 0, read);
+      }
+    }
+    values.clear();
+    values.put(MediaStore.Audio.Media.IS_PENDING, 0);
+    getContentResolver().update(uri, values, null, null);
+    lastExportedUri = uri;
+    return uri;
+  }
+
   private File modelDir(ModelSpec model) {
     return new File(getExternalFilesDir(null), "models/" + model.id);
   }
@@ -239,5 +379,14 @@ public class MainActivity extends Activity {
       }
     }
     file.delete();
+  }
+
+  @Override
+  protected void onDestroy() {
+    if (mediaPlayer != null) {
+      mediaPlayer.release();
+      mediaPlayer = null;
+    }
+    super.onDestroy();
   }
 }

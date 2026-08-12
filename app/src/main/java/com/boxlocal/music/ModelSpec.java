@@ -13,6 +13,7 @@ final class ModelSpec {
   final int minDurationSec;
   final int maxDurationSec;
   final int defaultDurationSec;
+  final int soundGenBlocks;
   final List<ModelFileSpec> files;
 
   private ModelSpec(
@@ -22,6 +23,7 @@ final class ModelSpec {
       int minDurationSec,
       int maxDurationSec,
       int defaultDurationSec,
+      int soundGenBlocks,
       List<ModelFileSpec> files) {
     this.id = id;
     this.name = name;
@@ -29,6 +31,7 @@ final class ModelSpec {
     this.minDurationSec = minDurationSec;
     this.maxDurationSec = maxDurationSec;
     this.defaultDurationSec = defaultDurationSec;
+    this.soundGenBlocks = soundGenBlocks;
     this.files = Collections.unmodifiableList(files);
   }
 
@@ -42,6 +45,7 @@ final class ModelSpec {
             1,
             12,
             8,
+            0,
             list(
                 file("sg_core.litert", "https://huggingface.co/jegly/audio/resolve/main/dit_model.tflite", 344293232L),
                 file("sg_text.litert", "https://huggingface.co/jegly/audio/resolve/main/conditioners_float32.tflite", 440190572L),
@@ -55,6 +59,7 @@ final class ModelSpec {
             1,
             24,
             12,
+            256,
             list(
                 file("sghd_core.litert", "https://huggingface.co/jegly/noise/resolve/main/dit_L256_int8.tflite", 1468553968L),
                 file("sghd_decode.litert", "https://huggingface.co/jegly/noise/resolve/main/ae_dec_L256_int8.tflite", 434121120L),
@@ -68,6 +73,7 @@ final class ModelSpec {
             1,
             180,
             60,
+            2048,
             list(
                 file("sghd_core.litert", "https://huggingface.co/jegly/noise/resolve/main/dit_L2048_int8.tflite", 1469012720L),
                 file("sghd_decode.litert", "https://huggingface.co/jegly/noise/resolve/main/ae_dec_L2048_int8.tflite", 447063056L),
