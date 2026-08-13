@@ -1,0 +1,6 @@
+            package com.google.android.gms.internal.mlkit_genai_speech;
+            
+            public final class zzbon {
+                public zzbon(String str, long j) {
+                }
+            }
