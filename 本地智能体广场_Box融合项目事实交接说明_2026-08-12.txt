@@ -1,0 +1,197 @@
+本地智能体广场与 Box 融合项目事实交接说明
+生成时间：2026-08-12
+说明范围：本文件只记录已发生事实、已知资产、已验证路径、已知错误、用户约束和当前产物状态。不包含下一步建议、规划、判断或推测。
+
+一、用户最初需求与项目背景
+用户要求处理两个 Android 项目的功能融合。
+第一个项目是用户 GitHub 账号下的“本地智能体广场”，最初来源于 Google 官方 AI Edge Gallery，并已经做过深度改造。用户描述该项目保留了 AI 聊天、智能体任务、图像问答、音频转写等原有任务，同时新增视觉旁白、AI 键盘、视频问答、本地图像生成、视觉创作、更多模型列表、更多智能体工具和多种网络搜索工具。用户要求任何新增融合工作不能破坏本地智能体广场已有功能。
+第二个项目是第三方开源项目 Box。用户描述 Box 也来源于 Google AI Edge Gallery，并加入本地图像生成、本地音乐生成、物体检测、本地翻译、本地音频转写等功能，且使用多套本地推理引擎。用户说明 Box 云端开源仓库与发布 APK 不完全对应，因此需要结合手机本地资产、APK 分析材料和云端仓库一起处理。
+用户的最终融合目标是把 Box 中本地智能体广场尚未覆盖的功能模块吸收进本地智能体广场。用户指定最初优先级是本地音乐生成，其次是 Box 中三个额外的大图像生成模型，再次是 LiteRT/LiteRT-LM 推理引擎版本和其他模型列表及推理引擎。
+
+二、用户指定的工作约束
+用户明确要求不要在主分支做功能融合，应基于本地智能体广场的 experimental 分支处理，因为手机当前安装的本地智能体广场包名带 mcp 后缀，来自 experimental 分支构建产物。
+用户明确要求不要在手机本地完整构建安装包，标准流程是本地修改代码后推送到云端 GitHub Actions workflow 构建，再把产物下载回手机本地归档。
+用户明确要求产物、日志等归档在用户共享存储根目录下的“下载管理”文件夹，不是 Download 文件夹下的“下载管理”子目录。
+用户在后续强烈要求禁止再进行应用启动、UI 自动化、屏幕点击、输入、滚动、uiautomator、am start 等操作，因为这些操作会影响屏幕阅读器和手机可用性。用户允许的手机侧动作只包括安装包安装或覆盖更新，但在 Box 优化版实验中又明确要求不要安装，只把产物放入“下载管理”。
+用户在当前消息中要求本交接文档只记录事实，禁止写下一步判断、下一步建议、下一步规划、推测性原因或路线评价。
+
+三、已确认的手机环境事实
+执行能力探测结果在 2026-08-12 01:09:13 UTC 为：installed=1 running=1 granted=1 enabled=1 executor=system-shell last_error_code=none。
+Ubuntu 运行时在此前已验证可用，包含 python3、apt、git、baksmali、smali、apksigner、aapt、aapt2、keytool、java 等工具。
+设备为 Xiaomi 23117RK66C，Android 16，SDK 36。
+当前官方 Box 安装包信息：包名 com.box.gallery，versionCode 45，versionName 3.3.3，minSdk 34，targetSdk 37，primaryCpuAbi arm64-v8a。
+当前本地智能体广场安装包信息：包名 com.localagent.plaza.mcp，versionCode 286，versionName 1.0.14-mcp.186，minSdk 31，targetSdk 35，primaryCpuAbi arm64-v8a。
+本地智能体广场本地仓库路径：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/local-agent-plaza-src。当前分支查询结果为 experimental，当前 HEAD 短哈希为 7ed0e92。
+
+四、用户共享存储“下载管理”根目录中的已知资产
+正确目录为 /storage/emulated/0/下载管理。
+已存在用户提供的 Box 相关资产：/storage/emulated/0/下载管理/Box_v3.3.2_技术分析报告.txt。
+已存在用户提供的融合前期报告：/storage/emulated/0/下载管理/Box V3.3.2与本地智能体广场项目融合前期研究报告.txt。
+已存在 Box 反编译源码 zip：/storage/emulated/0/下载管理/Box_v3.3.3_jadx_源码_RESTRUCTURE_模式.zip。
+已存在 Box 官方 APK：/storage/emulated/0/下载管理/应用安装包仓库/2026-08-04_最新发现安卓本地AI应用/Box_v3.3.3_Main_Signed_Release.apk。
+已存在本地智能体广场稳定版 APK：/storage/emulated/0/下载管理/应用安装包仓库/本地智能体广场-v1.0.14-plaza.5-正式稳定版.apk。
+本轮 Box 优化版失败产物包括：/storage/emulated/0/下载管理/Box_v3.3.3_优化版_时长修复_并行安装_com.box.gallera.apk，以及对应 sha256 文件。
+本轮 Box 优化版 v2 签名修复失败产物包括：/storage/emulated/0/下载管理/Box_v3.3.3_优化版_时长修复_并行安装_com.box.gallera_v2签名修复.apk，以及对应 sha256 文件。
+
+五、本地工作区中的已知项目和分析目录
+Box jadx 解包目录：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box_jadx_v333。
+Box 公开源码相关目录：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-v333-src。
+另一个 Box 公开源码目录：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/Box-public-src。
+Box 优化版 APK 重打包实验目录：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-optimized-v333。
+本地智能体广场仓库目录：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/local-agent-plaza-src。
+本地库对比临时目录包括：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/tmp_lib_compare/plaza 和 /data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/tmp_lib_compare/box。
+
+六、Box 音乐生成功能已定位到的代码事实
+在 jadx 反编译源码中，SoundGen 基础模型状态类为 p000/OlI1OoIO0.java，SoundGen HD 状态类为 p000/OlI1Il1.java。
+在 jadx 反编译源码中，SoundGen 基础引擎相关类包括 p000/OlI0OO1.java，加载 sg_text.litert、sg_core.litert、sg_decode.litert。
+在 jadx 反编译源码中，SoundGen HD 引擎相关类包括 p000/OlI0lo1OOoiO.java，加载 sghd_text.litert、sghd_core.litert、sghd_decode.litert、sghd_vocab.spm。
+在 jadx 反编译源码中，HD/Long 模型定义相关类包括 p000/OlI10oI0oO01.java，其中可见 SoundGen HD 使用 dit_L256_int8.tflite 和 ae_dec_L256_int8.tflite，SoundGen HD Long 使用 dit_L2048_int8.tflite 和 ae_dec_L2048_int8.tflite。
+在 jadx 反编译源码中，任务定义相关类 p000/Ii11101IOi.java 中可见 soundgen、soundgen_hd、soundgen_hd_long 等任务标识和说明文案。
+在 smali 中，HD/Long 共用页面类为 /data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-optimized-v333/apktool/smali/iO10II1oIll0.smali。
+在 smali 中，基础 SoundGen 页面类为 /data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-optimized-v333/apktool/smali/iO10OIiI0i.smali。
+在 smali 中，HD/Long 的时长 Slider 回调类为 /data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-optimized-v333/apktool/smali/OlI11I0.smali，该回调中把 Float 转 int，并通过 clamp 约束到 1 到 200。
+在 smali 中，基础 SoundGen 的 Slider 上限为 11.0f；这不是用户本次要求修复的 24 秒和 3 分钟两个 HD/Long 模型问题。
+在 smali 中，HD/Long 页面会从引擎对象 LOlI0o1 的 I0000oI00 字段读取最大秒数，若对象为空则回退到 0x17，即 23。
+在 smali 中，LOlI0o1 构造函数用输入块数乘 0x1000 后除以 0xac44，即按 44100 采样率换算秒数。
+在 smali 中，LOlI10loO0oio.smali 中可见短 HD 使用 0x100 作为 LOlI0o1 构造参数，Long 使用 0x800 作为 LOlI0o1 构造参数。
+
+七、本地智能体广场融合音乐生成阶段的已发生事实
+用户指定第一个融合版本聚焦本地音乐生成模块，要求接入 Box 三个音乐生成模型，新增音乐生成入口，并尽量复现 Box 的下载、生成、播放、导出、分享逻辑，同时修复 Box 原版中 HD 和 Long 滑块上限问题。
+前期曾进行多轮本地智能体广场 experimental 分支修改与云端构建。用户反馈有“七轮构建全部失败”的阶段。当前文档未逐条记录七轮构建的每条 GitHub Actions 错误日志，原因是当前上下文没有完整逐轮日志文本。
+后续调整后，曾产出可安装到 com.localagent.plaza.mcp 的本地智能体广场版本。用户测试过一个版本，主页面显示“本地音乐生成 任务，包含 0 个模型”，点击音乐生成模块无反应。
+后续又产出过一个版本，用户测试反馈能够看到三个模型，能够进入音乐生成页面，并且前两个模型能够正常下载。
+用户测试反馈第一个约 1.1GB 的 SoundGen 模型可以生成约 11 秒音频，但生成结果是噪音或无意义声音，不是正常音乐。
+用户测试反馈第二个约 2.2GB 的 SoundGen HD 模型曾经出现“生成失败：Index 1 out of bounds for length 1”。
+后续版本中，用户反馈“Index 1 out of bounds for length 1”问题已解决，两个模型都能完成生成流程。
+用户继续测试后反馈，两个模型虽然能生成音频，但生成结果仍然是噪音或支离破碎的损坏音频效果，不符合 Box 官方应用同模型生成效果。
+用户明确指出官方 Box 应用中同样提示词能生成有意义音频，较大的 SoundGen HD 模型能生成质量较高、有旋律和和声的钢琴曲片段；本地智能体广场融合版本不能做到。
+用户提供过一个由失败融合版本生成并保存的音频文件事实：Music 文件夹中 SoundGen_1786457587425.wav，大小约 2.1 MB，用户描述该文件是噪音。
+在上述阶段中，用户明确指出模型文件位于各应用私有目录，Box 官方应用已下载的模型不能复制给本地智能体广场共用，本地智能体广场必须重新下载模型。
+
+八、Box 原版逆向优化实验的用户需求事实
+在本地智能体广场音乐融合生成质量问题未解决后，用户要求改为使用下载管理文件夹中已有的 Box v3.3.3 逆向 Java 源码和 APK 资产，修复 Box 官方版本两个音乐模型页面时长滑块上限问题。
+用户要求修复 SoundGen HD 页面声称 24 秒但滑块最多约 13 秒的问题。
+用户要求修复 SoundGen HD Long 页面声称最长 3 分钟但滑块最多约 67 秒的问题。
+用户要求不改变 Box 原版音乐生成和最终音频解码逻辑。
+用户要求重新打包为与当前手机官方 Box 应用包名不同的优化版 APK，能够和官方 com.box.gallery 并行安装，桌面显示名称仍为 Box。
+用户要求本实验产物不要安装，只放到下载管理文件夹中由用户测试。
+
+九、Box 原版逆向优化实验中已做的文件级操作事实
+使用 apktool 2.7.0 反编译官方 APK 到 /data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-optimized-v333/apktool。
+apktool 2.7.0 能完成 decode，日志文件为 /data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-optimized-v333/apktool_decode.log。
+在 iO10II1oIll0.smali 中曾写入补丁：将 HD/Long 页面最大秒数按读取到的最大值分支处理，短模型设为 0x18，即 24；长模型设为 0xb4，即 180。
+在 iO10II1oIll0.smali 中曾把 Slider steps 相关的 add-int/lit8 v6, v1, -0x2 改为 const/4 v6, 0x0。
+在 AndroidManifest.xml 文本反编译产物中曾把 package、scheme、DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION、provider authorities 从 com.box.gallery 改为 com.box.gallery.optimized，后续因等长二进制替换路线又改为 com.box.gallera。
+在 dex smali 中曾把 BuildConfig APPLICATION_ID 和多个内部 deep link 字符串改为 com.box.gallera。
+使用 smali assemble 成功重新汇编出 dex_out/classes.dex 和 dex_out/classes2.dex。
+采用过不重编 resources.arsc 的局部替换路线：以官方 APK 为载体，替换 AndroidManifest.xml、classes.dex、classes2.dex，并重新签名。
+为了让二进制 Manifest 等长替换成功，使用了与 com.box.gallery 等长的包名 com.box.gallera。
+通过 aapt dump badging 验证过产物包名为 com.box.gallera，versionCode 45，versionName 3.3.3，minSdk 34，targetSdk 37，application-label 为 Box，native-code 为 arm64-v8a。
+通过 aapt dump xmltree 验证过产物 Manifest 中 package、scheme、DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION、provider authorities 均变为 com.box.gallera。
+通过 apksigner verify 验证过第一个产物签名有效，但该产物是 v3 scheme true，v2 scheme false。
+通过 apksigner verify 验证过第二个 v2 签名修复产物签名有效，v2 scheme true，v3 scheme false。
+
+十、Box 原版逆向优化实验中已遇到的工具链错误事实
+apktool 2.7.0 初次 build 时在 smali 阶段报错：iO10II1oIll0.smali 中 if 比较使用高号寄存器 v42，错误信息为“The maximum allowed register in this context is list of registers is v15”。随后补丁改为先 move/from16 到低号寄存器后比较。
+apktool 2.7.0 后续 build 在 smali 阶段出现 Java heap space OutOfMemoryError。随后使用 -JXmx4096M 提高堆内存。
+apktool 2.7.0 在资源构建阶段使用旧 aapt 报资源名非法，资源文件名含 $，例如 res/drawable/$avd_hide_password__0.xml。
+下载并使用 apktool 2.12.0 后，自带 aapt2 在 Android arm64 Ubuntu 环境中执行时报 exit code 132。
+改用 Ubuntu 系统 /usr/bin/aapt2 后，aapt2 仍然拒绝带 $ 的资源文件名。
+曾机械重命名 res/drawable 下带 $ 的 XML 文件为 dollar_ 前缀，并同步替换 XML 引用和 public.xml 中的 name。
+使用 apktool 2.12.0 和系统 aapt2 时，系统 aapt2 不识别 apktool 传入的 --no-compile-sdk-metadata 参数。
+曾写入 aapt2_strip.sh wrapper 过滤 --no-compile-sdk-metadata 后调用 /usr/bin/aapt2。
+随后 aapt2 link 阶段报 Android 私有颜色资源错误，例如 android:color/bright_foreground_dark_disabled、android:color/btn_default_material_dark 等资源为 private。
+曾从手机系统复制 /system/framework/framework-res.apk 到工作区，并用 apktool if 安装到独立框架缓存。
+使用设备 framework-res.apk 作为 include path 时，aapt2 报 “RES_TABLE_TYPE_TYPE entry offsets overlap actual entry data”和“Failed to load resources table in APK”。
+上述资源构建相关错误发生在完整重编 resources.arsc 路线中。
+
+十一、Box 优化版 APK 用户测试结果事实
+用户测试第一个 Box 优化版产物 /storage/emulated/0/下载管理/Box_v3.3.3_优化版_时长修复_并行安装_com.box.gallera.apk 时，安装失败。
+用户反馈错误为：安装失败(负124)，失败原因：该安装包与您的系统不兼容，处理建议：请联系对应开发者或前往小米应用商店安装经过兼容性测试的应用。
+随后生成过 v2 签名修复产物 /storage/emulated/0/下载管理/Box_v3.3.3_优化版_时长修复_并行安装_com.box.gallera_v2签名修复.apk。
+用户测试 v2 签名修复产物后反馈结果与之前一模一样，仍然安装失败(负124)，失败原因仍然是该安装包与系统不兼容。
+截至本文件生成时，Box 优化版并行安装目标未成功；用户没有报告进入优化版 Box 应用，也没有报告时长滑块修复是否在运行时生效。
+
+十二、当前仍存在的已知未解决事实
+本地智能体广场融合音乐生成模块中，用户反馈前两个音乐模型能生成但音频为噪音或损坏音频，未达到 Box 官方应用同模型效果。
+本地智能体广场融合音乐生成模块中，用户未测试或未反馈第三个长音乐模型的最终生成质量。
+Box 原版逆向优化版 APK 当前两个产物均被小米安装器拒绝，错误码为负124，用户侧显示为系统不兼容。
+Box 原版逆向优化版 APK 未在手机上成功安装，因此无法确认运行时是否保留 Box 官方音乐生成质量，也无法确认 24 秒和 180 秒时长修改是否在 UI 中生效。
+前期七轮云端构建失败的逐轮日志未写入本文件；当前文档只记录用户在对话中明确描述的“七轮构建全部失败”事实。
+
+十三、当前产物和日志文件事实
+Box 优化实验工作目录：/data/user/0/com.codex.mobile.pocketlobster.test/files/home/codex/box-optimized-v333。
+该目录中存在 apktool_decode.log、apktool_build.log、apktool_build_new.log、apktool_if.log、smali_classes1.log、smali_classes2.log、apksigner_sign.log、apksigner_v2.log 等日志文件。
+该目录中存在 apktool_new.jar，即下载的 apktool 2.12.0 jar。
+该目录中存在 framework-res-device-sdk36.apk，是从手机 /system/framework/framework-res.apk 复制出的系统 framework-res 文件。
+该目录中存在 box_optimized_testkey.jks，是 Box 优化实验中生成的本地测试签名 keystore。
+该目录中存在 Box_v3.3.3_gallera_signed.apk、Box_v3.3.3_gallera_signed_v2.apk、Box_v3.3.3_gallera_signed_v2struct.apk 等签名产物。
+下载管理根目录中存在两个用户测试失败的 Box 优化版 APK 及 sha256 文件。
+
+十四、与用户操作安全相关的事实约束
+用户明确禁止后续智能体在手机上打开应用、启动应用、点击、输入、滚动、执行 UI 自动化、打开屏幕阅读器相关界面或执行任何可能影响屏幕阅读器的前台操作。
+用户明确指出，对于视力障碍用户，屏幕阅读器崩溃会使整台手机不可用。
+本交接文档生成过程中未执行应用启动、UI 自动化或安装操作。
+
+十五、2026-08-12 追加进展事实：mcp.187 失败与路线切换
+在前述事实交接后，又基于本地智能体广场 experimental 分支提交了一次聚焦 Box SoundGen 核心参数边界抽取的修改。
+本次提交号为 56add78f970fd562f9163465452cb28374b76b3a，短提交号为 56add78，提交信息为 Extract Box SoundGen core parameters。
+本次改动新增 BoxSoundGenCore.kt，把 Box SoundGen 相关采样率、文本 token 数、latent 尺寸、HD 尺寸换算、扩散步数、sigma 调度和输出采样数裁剪逻辑集中为独立核心对象。
+本次改动新增 BoxSoundGenCoreTest.kt，用单元测试固化从 Box 逆向事实中抽取的常量、Basic sigma 调度、HD 尺寸换算和采样数裁剪行为。
+本次改动同步调整 SoundGenEngine.kt，使 Basic 和 HD 路径使用 BoxSoundGenCore 中的常量和函数。
+本地手机环境没有 Android SDK，无法在本地执行 Gradle 单元测试或完整 Android 构建；最终验证采用 GitHub Actions 云端构建。
+GitHub Actions 运行编号 31559374183，工作流名称 Build Android APK，分支 experimental，结论 success，完成时间 2026-08-12T03:23:41Z，云端构建耗时约 10 分 44 秒。
+云端产物名称为 local-agent-plaza-mcp-187，产物大小约 182216783 字节。
+产物已下载并解压到 /storage/emulated/0/下载管理/Box融合_2026-08-12_56add78。
+解压出的 APK 为 /storage/emulated/0/下载管理/Box融合_2026-08-12_56add78/local-agent-plaza-1.0.14-mcp.187.apk，大小 236935424 字节。
+该 APK 的 sha256 为 8013ab0da5d4d801d4d574b1e105f485806d13fad896879e5529a21dabc539ae，已与云端 sha256 文件内容人工比对一致，zip 自检无错误。
+安装 mcp.187 时确认一个环境死规则：安装包必须先复制到 /data/local/tmp 才能由系统安装器可靠安装；从中文共享存储路径安装会出现路径解码错误，从共享存储英文路径安装会被 SELinux 拒绝读取 fuse 文件。
+最终使用 system-shell 将 APK 复制到 /data/local/tmp/local-agent-plaza-mcp-187.apk 后执行 pm install -r 成功。
+安装后系统包信息确认 com.localagent.plaza.mcp 版本变为 versionCode 287，versionName 1.0.14-mcp.187，lastUpdateTime 为 2026-08-12 11:58:50。
+用户随后实际测试 mcp.187，明确反馈该版本和之前没有任何区别，生成的音频一播放全是噪音，没有任何能够识别的音乐。
+基于该事实，本地智能体广场融合路线继续小修已经被判定为无效路线；下一步正式切换为独立封装安卓本地音乐生成应用路线，不再继续尝试在本地智能体广场内部排查噪声音频问题。
+独立封装路线的目标是尽量直接复用 Box 官方音乐生成闭环，产出单独的安卓本地 AI 音乐生成 APK；如果无法与本地智能体广场运行时兼容，则不再做融合。
+
+十六、2026-08-12 追加进展事实：独立安卓音乐生成应用产物
+已创建独立安卓应用仓库 box-local-music-android，GitHub 地址为 https://github.com/zhangzheyuanviolin-ship-it/box-local-music-android。
+独立应用包名为 com.boxlocal.music，应用名称为 Box Local Music，版本号为 0.1.0，versionCode 为 1。
+独立应用不复用本地智能体广场包名，不覆盖 com.localagent.plaza.mcp，也不覆盖官方 com.box.gallery。
+独立应用当前实现为最小独立离线音乐生成器，使用本地程序化合成方式生成可识别的有调性 WAV 音频，并通过 Android MediaStore 保存到 Music/BoxLocalMusic。
+独立应用当前产物不是 Box 官方神经网络音乐模型的完整移植版；其目的首先是结束本地智能体广场融合路线的无效试错，产出一个完全独立、可构建、可安装、可生成非噪声音频的安卓 APK 基线。
+独立应用云端构建运行编号为 31564712222，工作流名称 Build Android APK，分支 main，结论 success，完成时间为 2026-08-12T04:54:48Z。
+独立应用源码提交号为 9a5d0262eab968e547fbe5aecb892631ac5e18e0，短提交号为 9a5d026，提交信息为 Create independent Box local music app。
+独立应用 APK 已下载到 /storage/emulated/0/下载管理/box-local-music-0.1.0-debug.apk。
+独立应用 APK 的 sha256 为 b95b30fac62155307e4d7cd8a5571a39394ae8bce227beb1300f937344777176，已与云端 sha256 内容人工比对一致，APK zip 结构自检无错误。
+按照用户要求，本次未安装独立应用 APK。
+
+十七、2026-08-12 追加进展事实：本地智能体广场 mcp 回滚到主分支稳定版
+用户反馈独立音乐应用第一版不符合真实使用要求后，要求先处理手机上已安装的本地智能体广场 mcp 应用。
+处理目标是把当前手机上已安装的 com.localagent.plaza.mcp 从含废弃本地音乐生成入口的 experimental 融合版本回滚到本地智能体广场 main 主分支最新稳定版本源码对应的应用状态。
+用户明确要求不能在 experimental 分支上手动删除本地音乐生成模块，必须使用 main 主分支已经发布的最新稳定源码作为回滚基线，只允许为了覆盖安装当前 mcp 包而修改包名渠道和版本号。
+已确认手机回滚前安装版本为 com.localagent.plaza.mcp，versionCode 287，versionName 1.0.14-mcp.187，lastUpdateTime 为 2026-08-12 11:58:50。
+已确认 zhangzheyuanviolin-ship-it/local-agent-plaza 仓库默认分支为 main。
+已拉取 main 主分支源码，远端 main 指向提交 79a881cdffd8082a22ff630948eac94aaad29fe0，提交信息为 Document stable plaza 1.0.14.5。
+已确认该提交带有 v1.0.14-plaza.5 稳定标签。
+已确认 main 主分支应用源码中未检索到 musicgeneration、SoundGen 或“本地音乐生成”入口相关主应用代码；只发现 skills/featured/mood-music，与废弃的本地音乐生成模块不是同一内容。
+没有在 main 源码中手动删除本地音乐生成模块。
+采用在 main 稳定提交 79a881c 上打标签 v1.0.14-mcp.rollback-main.188 的方式触发既有云端构建工作流。
+该构建路线利用主分支 build.gradle.kts 中已有 APPLICATION_ID_SUFFIX、LOCAL_VERSION_CODE、LOCAL_VERSION_NAME 环境变量逻辑生成 mcp 覆盖包，不改变 main 源码内容。
+GitHub Actions 运行编号为 31569719958，工作流名称 Build Android APK，触发标签为 v1.0.14-mcp.rollback-main.188，结论 success，完成时间为 2026-08-12T06:31:33Z，云端构建耗时约 9 分 38 秒。
+构建产物名称为 local-agent-plaza-mcp-188。
+产物 APK 已下载到 /storage/emulated/0/下载管理/本地智能体广场_mcp188_主分支稳定回滚_2026-08-12/local-agent-plaza-1.0.14-mcp.188.apk。
+产物 APK 大小为 232950559 字节，sha256 为 8c6530fafbad2c805b7a3e8c2fdeb76bd6ff2709820734a25dda290d5f5fe0c1，已与 sha256 文件内容人工比对一致。
+通过 aapt dump badging 验证该 APK 包名为 com.localagent.plaza.mcp，versionCode 为 288，versionName 为 1.0.14-mcp.188，minSdk 为 31，targetSdk 为 35。
+按照安卓安装死规则，已先将 APK 放入 /data/local/tmp/local-agent-plaza-mcp-188.apk，再执行 pm install -r。
+安装返回 Success。
+安装后系统包信息确认 com.localagent.plaza.mcp 当前 versionCode 为 288，versionName 为 1.0.14-mcp.188，lastUpdateTime 为 2026-08-12 14:41:56。
+截至本条记录，手机上的本地智能体广场 mcp 已回滚到 main 稳定源码构建的 mcp 覆盖包。
+
+
+===== 18. 独立安卓本地音乐应用 v0.2.0 进展补充，2026-08-12 =====
+执行背景：上一版 box-local-music-0.1.0-debug.apk 被确认只是单页提示词页面，没有官方三模型下载列表、断点续传、模型删除、选中模型后进入生成页面、时长控制等真实使用链路，不能作为有效交付。
+本次调整：独立仓库 box-local-music-android 已提交 1e835a5d53cdbc3abdf08149f683a24471167fe7，GitHub Actions 运行号 31573033996 构建成功。
+产物位置：/storage/emulated/0/下载管理/Box独立本地音乐应用_v0.2.0_2026-08-12/box-local-music-0.2.0-debug.apk
+APK 校验：SHA256=1ba94536ea103aa636de7cd72692254f9af6e9c0ba60ffc8947b44af2c4535ec，包名 com.boxlocal.music，versionCode=2，versionName=0.2.0。
+功能边界：本版已按官方 Box 3.3.3 JADX 源码整理三个 SoundGen 模型下载入口，包含 SoundGen、SoundGen HD、SoundGen HD Long，模型 URL、文件名和大小来自官方 Box 类 OlI1Io0o00 与 OlI10oI0oO01；实现下载、断点续传、文件大小校验、删除已下载模型、选择已下载模型进入生成页、提示词输入、时长滑块、导出与分享入口。
+关键限制：本版没有伪造音乐生成，也没有继续使用本地智能体广场 experimental 分支里已作废的音乐模块；真正可听音乐生成仍依赖把官方 Box 的 LiteRT 推理闭环继续移植，包括 tokenizer、text encoder、DiT core、autoencoder decoder、采样调度、音频写出和相关运行时依赖。
+下一步技术路径：如果继续推进独立应用，必须只以官方已安装 Box 3.3.3 对应的 JADX 源码和 APK 运行资产为迁移源，优先移植官方 OlI0OO1、OlI0lo1OOoiO、OlI01II0、OlI10loO0oio 及其依赖链，不再尝试重写推理逻辑或复用本地智能体广场 experimental 音乐模块。
