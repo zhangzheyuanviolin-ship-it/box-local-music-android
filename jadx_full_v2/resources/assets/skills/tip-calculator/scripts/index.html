@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<script>
+  window['ai_edge_gallery_get_result'] = async (dataStr) => {
+    try {
+      const input = JSON.parse(dataStr);
+      const bill = parseFloat(input.bill);
+      const tipPercent = parseFloat(input.tipPercent ?? 15);
+      const people = Math.max(parseInt(input.people ?? 1), 1);
+      const roundUp = input.roundUp === true;
+      const cur = String(input.currency ?? '$');
+
+      if (!Number.isFinite(bill) || bill < 0) return JSON.stringify({ error: 'Invalid bill amount.' });
+      if (!Number.isFinite(tipPercent) || tipPercent < 0) return JSON.stringify({ error: 'Invalid tip percent.' });
+
+      const tip = bill * tipPercent / 100;
+      const total = bill + tip;
+      let perPerson = total / people;
+      if (roundUp) perPerson = Math.ceil(perPerson);
+
+      const f = (n) => cur + n.toFixed(2);
+      const lines = [
+        `Bill:       ${f(bill)}`,
+        `Tip (${tipPercent}%): ${f(tip)}`,
+        `Total:      ${f(total)}`,
+      ];
+      if (people > 1) {
+        lines.push(`Per person (${people}): ${f(perPerson)}${roundUp ? ' (rounded up)' : ''}`);
+      }
+      return JSON.stringify({ result: lines.join('\n') });
+    } catch (e) {
+      return JSON.stringify({ error: `Tip Calculator error: ${e.message}` });
+    }
+  };
+</script>
+</body>
+</html>

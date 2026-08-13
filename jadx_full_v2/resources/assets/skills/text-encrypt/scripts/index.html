@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<script>
+  const STORAGE_KEY = 'text_encrypt_result';
+  const ITERATIONS = 250000;
+
+  function b64encode(buf) {
+    const bytes = new Uint8Array(buf);
+    let s = '';
+    for (const b of bytes) s += String.fromCharCode(b);
+    return btoa(s);
+  }
+
+  function b64decode(s) {
+    const clean = s.trim().replace(/\s+/g, '');
+    const bin = atob(clean);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+
+  async function deriveKey(passphrase, salt) {
+    const base = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(passphrase),
+      { name: 'PBKDF2' }, false, ['deriveKey'],
+    );
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' },
+      base,
+      { name: 'AES-GCM', length: 256 },
+      false, ['encrypt', 'decrypt'],
+    );
+  }
+
+  async function encrypt(text, passphrase) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(passphrase, salt);
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(text)));
+    const packed = new Uint8Array(salt.length + iv.length + ct.length);
+    packed.set(salt, 0);
+    packed.set(iv, salt.length);
+    packed.set(ct, salt.length + iv.length);
+    return b64encode(packed);
+  }
+
+  async function decrypt(b64, passphrase) {
+    const packed = b64decode(b64);
+    if (packed.length < 16 + 12 + 16) throw new Error('Ciphertext too short.');
+    const salt = packed.slice(0, 16);
+    const iv = packed.slice(16, 28);
+    const ct = packed.slice(28);
+    const key = await deriveKey(passphrase, salt);
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+    return new TextDecoder().decode(pt);
+  }
+
+  window['ai_edge_gallery_get_result'] = async (dataStr) => {
+    try {
+      const input = JSON.parse(dataStr);
+      const mode = String(input.mode ?? '').toLowerCase();
+      const text = String(input.text ?? '');
+      const passphrase = String(input.passphrase ?? '');
+
+      if (!text) return JSON.stringify({ error: 'No text provided.' });
+      if (!passphrase) return JSON.stringify({ error: 'No passphrase provided.' });
+      if (mode !== 'encrypt' && mode !== 'decrypt') {
+        return JSON.stringify({ error: 'mode must be "encrypt" or "decrypt".' });
+      }
+
+      let out;
+      let label;
+      if (mode === 'encrypt') {
+        out = await encrypt(text, passphrase);
+        label = 'Encrypted (AES-256-GCM, base64)';
+      } else {
+        try {
+          out = await decrypt(text, passphrase);
+          label = 'Decrypted plaintext';
+        } catch (e) {
+          return JSON.stringify({ result: `Decryption failed. Wrong passphrase or corrupted ciphertext.\n(${e.message})` });
+        }
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ mode, label, output: out }));
+      return JSON.stringify({
+        result: `${label}:\n${out}`,
+        webview: { url: 'display.html' },
+      });
+    } catch (e) {
+      return JSON.stringify({ error: `Text Encrypt error: ${e.message}` });
+    }
+  };
+</script>
+</body>
+</html>

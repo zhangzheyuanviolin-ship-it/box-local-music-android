@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<script>
+  const STORAGE_KEY = 'totp_auth_result';
+
+  function base32Decode(s) {
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    const cleaned = s.toUpperCase().replace(/[^A-Z2-7]/g, '');
+    if (!cleaned) throw new Error('Empty secret');
+    let bits = '';
+    for (const c of cleaned) {
+      const idx = alphabet.indexOf(c);
+      if (idx < 0) throw new Error('Invalid base32 character: ' + c);
+      bits += idx.toString(2).padStart(5, '0');
+    }
+    const bytes = [];
+    for (let i = 0; i + 8 <= bits.length; i += 8) {
+      bytes.push(parseInt(bits.slice(i, i + 8), 2));
+    }
+    return new Uint8Array(bytes);
+  }
+
+  async function hotp(keyBytes, counter, digits, algorithm) {
+    const buf = new ArrayBuffer(8);
+    const view = new DataView(buf);
+    view.setUint32(4, counter);
+    const key = await crypto.subtle.importKey('raw', keyBytes, { name: 'HMAC', hash: algorithm }, false, ['sign']);
+    const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, buf));
+    const offset = sig[sig.length - 1] & 0xf;
+    const code = ((sig[offset] & 0x7f) << 24) | ((sig[offset + 1] & 0xff) << 16) | ((sig[offset + 2] & 0xff) << 8) | (sig[offset + 3] & 0xff);
+    const mod = 10 ** digits;
+    return String(code % mod).padStart(digits, '0');
+  }
+
+  window['ai_edge_gallery_get_result'] = async (dataStr) => {
+    try {
+      const input = JSON.parse(dataStr);
+      const secret = String(input.secret ?? '').trim();
+      const digits = Math.min(Math.max(parseInt(input.digits ?? 6), 4), 10);
+      const period = Math.min(Math.max(parseInt(input.period ?? 30), 15), 300);
+      let algorithm = String(input.algorithm ?? 'SHA-1').toUpperCase();
+      if (!['SHA-1', 'SHA-256', 'SHA-512'].includes(algorithm)) algorithm = 'SHA-1';
+
+      if (!secret) return JSON.stringify({ error: 'No secret provided.' });
+
+      const keyBytes = base32Decode(secret);
+      const now = Math.floor(Date.now() / 1000);
+      const counter = Math.floor(now / period);
+      const current = await hotp(keyBytes, counter, digits, algorithm);
+      const next = await hotp(keyBytes, counter + 1, digits, algorithm);
+      const remaining = period - (now % period);
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        current, next, period, digits, algorithm,
+        generatedAtSec: now,
+      }));
+
+      return JSON.stringify({
+        result: `TOTP (${digits} digits · ${algorithm} · ${period}s): ${current}\nNext: ${next} in ${remaining}s`,
+        webview: { url: 'display.html' },
+      });
+    } catch (e) {
+      return JSON.stringify({ error: `TOTP error: ${e.message}` });
+    }
+  };
+</script>
+</body>
+</html>

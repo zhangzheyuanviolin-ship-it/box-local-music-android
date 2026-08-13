@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<script>
+  window['ai_edge_gallery_get_result'] = async (dataStr) => {
+    try {
+      const input = JSON.parse(dataStr);
+      const pattern = String(input.pattern ?? '');
+      const text = String(input.text ?? '');
+      let flags = String(input.flags ?? 'g');
+
+      if (!pattern) return JSON.stringify({ error: 'No regex pattern provided.' });
+      if (!flags.includes('g')) flags = 'g' + flags;
+
+      let regex;
+      try {
+        regex = new RegExp(pattern, flags);
+      } catch (e) {
+        return JSON.stringify({ result: `Invalid regex: ${e.message}` });
+      }
+
+      const matches = [];
+      let m;
+      const safeText = text.slice(0, 50000);
+      while ((m = regex.exec(safeText)) !== null) {
+        matches.push({
+          match: m[0],
+          index: m.index,
+          groups: m.slice(1),
+        });
+        if (m.index === regex.lastIndex) regex.lastIndex++;
+        if (matches.length >= 500) break;
+      }
+
+      if (matches.length === 0) {
+        return JSON.stringify({ result: `No matches for /${pattern}/${flags}` });
+      }
+
+      const lines = matches.map((mm, i) => {
+        const g = mm.groups.length ? ` [groups: ${mm.groups.map(x => JSON.stringify(x)).join(', ')}]` : '';
+        return `${i + 1}. "${mm.match}" @ ${mm.index}${g}`;
+      });
+      const result = `${matches.length} match${matches.length === 1 ? '' : 'es'} for /${pattern}/${flags}:\n${lines.join('\n')}`;
+      return JSON.stringify({ result });
+    } catch (e) {
+      return JSON.stringify({ error: `Regex Tester error: ${e.message}` });
+    }
+  };
+</script>
+</body>
+</html>

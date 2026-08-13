@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<script>
+  // Curated short word list (~500 common, easy-to-type English words).
+  const WORDS = ("able about above across action active actor add after again against age agree air all allow also always and another answer any area arm army around art ask at attack attempt attend away baby back bad bag ball band bank bar base battle be bear beat beautiful become bed been before begin behind believe below best better between big bill bird bit black block blood blow blue board boat body book boot born both bottom box boy brain branch break bridge bright bring broad broken brother brown build built burn busy but buy by call came camp can captain car card care carry case cast catch cause cell center century chair chance change character charge chart check chest chief child choose church circle city class clean clear climb clock close cloud coast coat coffee cold color column come command common company complete condition consider contain control cook cool copy corn corner correct cost could count country course cover cow create cross crowd cry cup cut daily danger dark date day dead dear deep deer degree depend deep describe desert design desk detail develop die different direct discover distance divide do dog done door double doubt down draw dream dress drink drive drop dry due during dust each ear early east easy eat edge effect effort egg either else end energy enough enter equal equip escape even evening event ever every example except exchange exist expect explain eye face fact factor fail fair fall family famous far farm fast father favor fear feed feel feet fell felt few field fight figure fill find fine finger finish fire firm first fish fit five fix floor flower fly follow food foot for force forest form forth forward found four free friend from front full further future gain game garden gas gather gave general gentle gift girl give glad glass go gold gone good got govern grand great green grew ground group grow guard guess gun had hair half hall hand happen happy hard has hat have he head hear heart heat heavy held help here high hill him himself his history hit hold hole home hope horse hot hour house how however huge human hundred hunt husband ice idea if important in inch indeed industry inside instead interest into iron island issue it job join joined journey joy judge jump just keep kept key kind king knee knew know known lady lake land language large last late later laugh law lay lead learn least leave led left leg less let letter level life lift light like line lion list listen little live long look lose lost lot loud love low machine made main make man many map march mark market master matter may me mean meant meat meet member men met method mid middle might mile mind mine minute miss modern moment money month moon more morning most mother mountain mouth move much music must my name near need never new next nice night nine no north not note nothing notice now number object ocean of off offer often oil old on once one only open or order other our out over own page paid pair paper part party pass past path pay people perhaps person pick picture piece place plain plan plane plant play please point poor position possible power present press pretty price prize probably problem product program promise prove public pull push put quart queen question quick quiet quite race radio rain rainy raise ran rang ranger rather reach read ready real receive record red region remember repeat report rest result return rich ride right ring rise river road rock rocket rode roll roof room round row rule run sad safe said sail salt same sand sat save saw say school science sea season seat second section see seed seem seen sell send sense sent serve service set settle seven several shall shape share sharp she ship shoe shop shore short should shout show side sight sign silver simple since sing sir sister sit six size sky slave sleep slow small smile smoke snow so soft soil sold soldier some son soon sort sound south space speak special speed spell spend spoke spread spring square stand star start state station stay steel step stick still stone stood stop store story straight strange stream street stretch strong study subject such suggest summer sun suppose sure surface surprise swim table tail take talk tall teach team tell ten term test than thank that the their them themselves then there these they thick thin thing think third this those though thought thousand three through throw thus tie time tiny to today together told tomorrow tone too took top total touch toward town trade train travel tree trip trouble true try turn twelve two type under understand until up upon us use usual valley value various very view village visit voice wait walk wall want war warm was wash watch water wave way we wear weather week weigh well went were west what wheat wheel when where which while white who whole whom whose why wide wife wild will win wind window wing winter wire wise wish with within without woman wonder wood word wore work world worn worry would write written wrong wrote yard year yellow yes yet you young your").split(/\s+/);
+
+  window['ai_edge_gallery_get_result'] = async (dataStr) => {
+    try {
+      const input = JSON.parse(dataStr);
+      const numWords = Math.min(Math.max(parseInt(input.words ?? 5), 3), 12);
+      const separator = String(input.separator ?? '-');
+      const count = Math.min(Math.max(parseInt(input.count ?? 1), 1), 10);
+      const capitalize = input.capitalize === true;
+
+      function pick() {
+        const buf = new Uint32Array(1);
+        crypto.getRandomValues(buf);
+        const w = WORDS[buf[0] % WORDS.length];
+        return capitalize ? w.charAt(0).toUpperCase() + w.slice(1) : w;
+      }
+      function makeOne() {
+        const words = Array.from({ length: numWords }, pick);
+        return words.join(separator);
+      }
+
+      const phrases = Array.from({ length: count }, makeOne);
+      const entropyPerWord = Math.log2(WORDS.length);
+      const totalEntropy = Math.round(entropyPerWord * numWords * 10) / 10;
+      const header = `${count} passphrase${count > 1 ? 's' : ''} (${numWords} words · ~${totalEntropy} bits entropy)`;
+      const list = count === 1 ? phrases[0] : phrases.map((p, i) => `${i + 1}. ${p}`).join('\n');
+      return JSON.stringify({ result: `${header}\n${list}` });
+    } catch (e) {
+      return JSON.stringify({ error: `Diceware error: ${e.message}` });
+    }
+  };
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+            <?xml version="1.0" encoding="utf-8"?>
+            <paths>
+                <cache-path
+                    name="cache_pictures"
+                    path="images/"/>
+                <cache-path
+                    name="cache_soundgen"
+                    path="soundgen/"/>
+                <cache-path
+                    name="cache_soundgenhd"
+                    path="soundgenhd/"/>
+            </paths>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+<script>
+  window['ai_edge_gallery_get_result'] = async (dataStr) => {
+    try {
+      const input = JSON.parse(dataStr);
+      const json = String(input.json ?? '').trim();
+      const mode = String(input.mode ?? 'format').toLowerCase();
+      const indent = Math.min(Math.max(parseInt(input.indent) || 2, 0), 8);
+
+      if (!json) return JSON.stringify({ error: 'No JSON provided.' });
+
+      let parsed;
+      try {
+        parsed = JSON.parse(json);
+      } catch (e) {
+        return JSON.stringify({ result: `Invalid JSON: ${e.message}` });
+      }
+
+      let out;
+      if (mode === 'minify') {
+        out = JSON.stringify(parsed);
+      } else if (mode === 'validate') {
+        const type = Array.isArray(parsed) ? 'array' : typeof parsed;
+        const size = JSON.stringify(parsed).length;
+        out = `Valid JSON.\nType: ${type}\nSize: ${size} chars`;
+      } else {
+        out = JSON.stringify(parsed, null, indent);
+      }
+
+      return JSON.stringify({ result: out });
+    } catch (e) {
+      return JSON.stringify({ error: `JSON Formatter error: ${e.message}` });
+    }
+  };
+</script>
+</body>
+</html>

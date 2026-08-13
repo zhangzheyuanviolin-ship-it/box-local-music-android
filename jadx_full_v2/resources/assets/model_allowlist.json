@@ -1,0 +1,885 @@
+{
+  "models": [
+    {
+      "name": "Gemma-4-E2B-it",
+      "modelId": "litert-community/gemma-4-E2B-it-litert-lm",
+      "modelFile": "gemma-4-E2B-it.litertlm",
+      "description": "**Recommended — start here.** Google's Gemma 4 E2B handles everyday chat, and it can also look at photos and listen to audio clips. Runs well on most modern phones, and it is small enough not to dominate your storage. 2.6 GB · 32K context · text, image and audio · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 2588147712,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "6e5c4f1e395deb959c494953478fa5cec4b8008f",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "capabilities": ["llm_thinking", "speculative_decoding"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_ask_image", "llm_ask_audio"],
+        "speculative_decoding": ["llm_chat", "llm_ask_image", "llm_ask_audio", "llm_prompt_lab"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"]
+    },
+    {
+      "name": "Gemma-4-E4B-it",
+      "modelId": "litert-community/gemma-4-E4B-it-litert-lm",
+      "modelFile": "gemma-4-E4B-it.litertlm",
+      "description": "**Best overall, if your phone can keep up.** The same skills as E2B — chat, photos, audio — but noticeably smarter answers. Wants a recent flagship and a little more RAM. 3.7 GB · 32K context · text, image and audio · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 3659530240,
+      "minDeviceMemoryInGb": 12,
+      "commitHash": "28299f30ee4d43294517a4ac93abd6163412f07f",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "capabilities": ["llm_thinking", "speculative_decoding"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_ask_image", "llm_ask_audio"],
+        "speculative_decoding": ["llm_chat", "llm_ask_image", "llm_ask_audio", "llm_prompt_lab"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"]
+    },
+    {
+      "name": "Qwen2.5-1.5B-Instruct",
+      "modelId": "litert-community/Qwen2.5-1.5B-Instruct",
+      "modelFile": "Qwen2.5-1.5B-Instruct_multi-prefill-seq_q8_ekv4096.litertlm",
+      "description": "**Small, quick, general-purpose chat.** Alibaba's Qwen 2.5 at 1.5B — fine for everyday questions, summaries and short writing tasks, and comfortable on mid-range phones. Text only. 1.6 GB · Apache-2.0.",
+      "sizeInBytes": 1597931520,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "19edb84c69a0212f29a6ef17ba0d6f278b6a1614",
+      "defaultConfig": {
+        "topK": 20,
+        "topP": 0.8,
+        "temperature": 0.7,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab"]
+    },
+    {
+      "name": "DeepSeek-R1-Distill-Qwen-1.5B",
+      "modelId": "litert-community/DeepSeek-R1-Distill-Qwen-1.5B",
+      "modelFile": "DeepSeek-R1-Distill-Qwen-1.5B_multi-prefill-seq_q8_ekv4096.litertlm",
+      "description": "**Shows its reasoning.** Distilled from DeepSeek R1, so it works through problems step by step instead of answering instantly — better at maths and logic than its size suggests, but slower to start replying. Text only. 1.8 GB · MIT.",
+      "sizeInBytes": 1833451520,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "e34bb88632342d1f9640bad579a45134eb1cf988",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab"]
+    },
+    {
+      "name": "Gemma-4-E2B-it (Snapdragon 8 Elite)",
+      "modelId": "litert-community/gemma-4-E2B-it-litert-lm",
+      "modelFile": "gemma-4-E2B-it_qualcomm_sm8750.litertlm",
+      "description": "**For Snapdragon 8 Elite phones only.** The same Gemma 4 E2B, rebuilt to run on that chip's dedicated AI hardware — much faster there than the standard build. On any other phone, choose the plain Gemma-4-E2B-it instead. 3.0 GB · 32K context · text, image and audio · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 3016294400,
+      "minDeviceMemoryInGb": 8,
+      "commitHash": "6e5c4f1e395deb959c494953478fa5cec4b8008f",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_ask_image", "llm_ask_audio"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "socToModelFiles": {"sm8750": {"modelFile": "gemma-4-E2B-it_qualcomm_sm8750.litertlm", "commitHash": "6e5c4f1e395deb959c494953478fa5cec4b8008f", "sizeInBytes": 3016294400}, "sm8750-ab": {"modelFile": "gemma-4-E2B-it_qualcomm_sm8750.litertlm", "commitHash": "6e5c4f1e395deb959c494953478fa5cec4b8008f", "sizeInBytes": 3016294400}}
+    },
+    {
+      "name": "Gemma-4-E2B-it (Snapdragon QCS8275)",
+      "modelId": "litert-community/gemma-4-E2B-it-litert-lm",
+      "modelFile": "gemma-4-E2B-it_qualcomm_qcs8275.litertlm",
+      "description": "**For Snapdragon QCS8275 devices only.** The same Gemma 4 E2B, rebuilt for that chip's AI hardware — much faster there than the standard build. On any other device, choose the plain Gemma-4-E2B-it instead. 3.3 GB · 32K context · text, image and audio · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 3294593024,
+      "minDeviceMemoryInGb": 8,
+      "commitHash": "120ed4dc36b76aa58234cbb37c71e578bb9016c3",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_ask_image", "llm_ask_audio"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "socToModelFiles": {"qcs8275": {"modelFile": "gemma-4-E2B-it_qualcomm_qcs8275.litertlm", "commitHash": "120ed4dc36b76aa58234cbb37c71e578bb9016c3", "sizeInBytes": 3294593024}}
+    },
+    {
+      "name": "Gemma-4-E2B-it (Tensor G5)",
+      "modelId": "litert-community/gemma-4-E2B-it-litert-lm",
+      "modelFile": "gemma-4-E2B-it_Google_Tensor_G5.litertlm",
+      "description": "**For Pixel 10 only.** The same Gemma 4 E2B, rebuilt for the Pixel 10's Tensor G5 AI hardware — substantially faster there than the standard build. On any other phone, choose the plain Gemma-4-E2B-it instead. 4.0 GB · 32K context · text, image and audio · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 3953110901,
+      "minDeviceMemoryInGb": 12,
+      "commitHash": "3f250541aff494231036164d89603de72cb6dc70",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "capabilities": ["llm_thinking", "speculative_decoding"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_ask_image", "llm_ask_audio"],
+        "speculative_decoding": ["llm_chat", "llm_ask_image", "llm_ask_audio", "llm_prompt_lab"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "socToModelFiles": {"tensor g5": {"modelFile": "gemma-4-E2B-it_Google_Tensor_G5.litertlm", "commitHash": "3f250541aff494231036164d89603de72cb6dc70", "sizeInBytes": 3953110901}}
+    },
+    {
+      "name": "Gemma-4-12B-it",
+      "modelId": "litert-community/gemma-4-12B-it-litert-lm",
+      "modelFile": "gemma-4-12B-it-gpu.litertlm",
+      "description": "**The strongest Gemma that reliably loads, for flagships with RAM to spare.** Better writing and reasoning than E2B or E4B, in exchange for a 6 GB download and slower replies. The 26B build is larger still, but experimental. Text only for now — Google says image and audio input are coming in a later version of this model. 6.0 GB · 32K context · runs on GPU · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 5986074624,
+      "minDeviceMemoryInGb": 16,
+      "commitHash": "b33be37e07c25ee94e6d99dd0a484b32158f7b49",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"]
+    },
+    {
+      "name": "MobileActions-270M",
+      "modelId": "jegly/mobile_actions_q8_ekv1024.litertlm",
+      "modelFile": "mobile_actions_q8_ekv1024.litertlm",
+      "url": "https://huggingface.co/jegly/mobile_actions_q8_ekv1024.litertlm/resolve/main/mobile_actions_q8_ekv1024.litertlm?download=true",
+      "description": "**Powers the Mobile Actions feature — not a chat model.** A tiny Gemma 270M fine-tuned to turn plain requests into actions on your phone. Ask it to hold a conversation and it will disappoint; use it with Mobile Actions. 0.3 GB · CPU · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 288964608,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "491f610",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.0,
+        "maxTokens": 1024,
+        "accelerators": "cpu"
+      },
+      "taskTypes": ["llm_mobile_actions"],
+      "bestForTaskTypes": ["llm_mobile_actions"]
+    },
+    {
+      "name": "TinyLlama-1.1B-Chat",
+      "modelId": "litert-community/TinyLlama-1.1B-Chat-v1.0",
+      "modelFile": "TinyLlama-1.1B-Chat-v1.0_multi-prefill-seq_q8_ekv1280.task",
+      "description": "**Near-instant replies on any phone.** An older, simpler model, so answers are shorter and less reliable than Gemma or Qwen — but it is very fast and very small, which makes it a good fit for older hardware or quick one-line questions. Text only. Apache-2.0. 1.1 GB · 1280-token context · ~156 tok/s prefill, ~26 tok/s decode (Galaxy S24 Ultra, CPU).",
+      "sizeInBytes": 1148331545,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "7ad278008521e0c4c78192550a698d87a22f395c",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 1280,
+        "maxTokens": 1280,
+        "accelerators": "cpu,gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Phi-4-mini-instruct",
+      "modelId": "litert-community/Phi-4-mini-instruct",
+      "modelFile": "Phi-4-mini-instruct_multi-prefill-seq_q8_ekv4096.litertlm",
+      "description": "**A strong, tidy writer — but it needs a decent phone.** Microsoft's Phi-4 mini gives unusually well-structured answers for its size. **Will not load on 6 GB devices** such as the Pixel 6a; 8 GB+ RAM. Text only. 3.9 GB · 4096-token context · ~10 tok/s decode on GPU (Galaxy S24 Ultra) · MIT.",
+      "sizeInBytes": 3910090752,
+      "minDeviceMemoryInGb": 8,
+      "commitHash": "8cd368be75fdb94d5a6f6f5b40f1ab22a6c2543e",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"]
+    },
+    {
+      "name": "TinySwallow-1.5B-Instruct",
+      "modelId": "litert-community/TinySwallow-1.5B-Instruct",
+      "modelFile": "TinySwallow-1.5B-Instruct.litertlm",
+      "description": "**Bilingual Japanese and English.** A compact Japanese/English model from Sakana AI, distilled from Qwen 2.5 — handy if you want both languages in one model rather than Japanese alone. Handles both languages naturally where most small models only really do English. Text only. 1.6 GB · 4096-token context · Apache-2.0.",
+      "sizeInBytes": 1567604736,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "95b421352bcbd4324630b516374364383cf1722e",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "VibeThinker-1.5B",
+      "modelId": "litert-community/VibeThinker-1.5B",
+      "modelFile": "VibeThinker-1.5B.litertlm",
+      "description": "**A maths and competitive-coding specialist.** Punches far above 1.5B on contest problems (AIME, HMMT, Codeforces). **Not a general chat model** — ask it something conversational and it will disappoint. Text only. 1.6 GB · 4096-token context · MIT.",
+      "sizeInBytes": 1567604736,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "10a5f89bb85a97b58585b0d962205dfda0fdac82",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.6,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"]
+    },
+    {
+      "name": "Qwen3-8B",
+      "modelId": "litert-community/Qwen3-8B",
+      "modelFile": "qwen3_8b_channelwise_int8_float32kv.litertlm",
+      "description": "**Big and demanding — if your phone can take it.** At 8B parameters it has more to draw on than the small models for writing and analysis. The catch: 8.3 GB to download, **12 GB+ RAM required**, and replies arrive slowly at this size. Text only. 8.3 GB · channel-wise int8 · Apache-2.0.",
+      "sizeInBytes": 8307720192,
+      "minDeviceMemoryInGb": 12,
+      "commitHash": "9984555e5866f46855d1e231e30241c7ee0bb369",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.7,
+        "maxContextLength": 1280,
+        "maxTokens": 1280,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Gemma 3 1B-IT (Tensor G5)",
+      "modelId": "jegly/mirror",
+      "modelFile": "Gemma3-1B-IT_q8_ekv1280_Google_Tensor_G5.litertlm",
+      "description": "**For Pixel 10 only.** Gemma 3 1B rebuilt for the Pixel 10's Tensor G5 AI hardware — much faster there than the standard build. Small and snappy, though an older and simpler model than Gemma 4. On other phones choose plain Gemma 3 1B-IT. Text only. 1.7 GB · ~1.25K context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 1678542365,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "main",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 1280,
+        "maxTokens": 1280,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"],
+      "socToModelFiles": {"tensor g5": {"modelFile": "Gemma3-1B-IT_q8_ekv1280_Google_Tensor_G5.litertlm", "commitHash": "main", "sizeInBytes": 1678542365}}
+    },
+    {
+      "name": "Gemma 3n E2B-it (MediaTek)",
+      "modelId": "jegly/mirror",
+      "modelFile": "gemma-3n-E2B-it-int4.mediatek.mt6993.litertlm",
+      "description": "**For MediaTek Dimensity 9400 phones only.** Gemma 3n E2B rebuilt for that chip's AI hardware — much faster there than the standard build. Handles text, photos and audio. On any other phone, choose the plain Gemma 3n E2B-it. 4.3 GB · 32K context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 4330192896,
+      "minDeviceMemoryInGb": 8,
+      "commitHash": "main",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_ask_image", "llm_ask_audio"],
+      "socToModelFiles": {"mt6993": {"modelFile": "gemma-3n-E2B-it-int4.mediatek.mt6993.litertlm", "commitHash": "main", "sizeInBytes": 4330192896}}
+    },
+    {
+      "name": "Qwen3 0.6B (MediaTek)",
+      "modelId": "jegly/mirror",
+      "modelFile": "Qwen3-0.6B.mediatek.mt6993.litertlm",
+      "description": "**For MediaTek Dimensity 9400 phones only.** Tiny and very quick on that chip's AI hardware. Answers are simple — good for short questions rather than involved ones. Text only. 1.2 GB · 4096-token context · Apache-2.0.",
+      "sizeInBytes": 1202913280,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "main",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"],
+      "socToModelFiles": {"mt6993": {"modelFile": "Qwen3-0.6B.mediatek.mt6993.litertlm", "commitHash": "main", "sizeInBytes": 1202913280}}
+    },
+    {
+      "name": "Gemma 3n E2B-it",
+      "modelId": "jegly/mirror",
+      "modelFile": "gemma-3n-E2B-it-int4.litertlm",
+      "description": "**Chat, photos and audio — the previous generation.** Still very capable, but Gemma 4 E2B is newer, smaller and generally better, so pick this only if you specifically want the 3n generation. Its clever design uses only about 2B parameters at a time despite being larger on disk. 3.7 GB · 32K context · text, image and audio · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 3655827456,
+      "minDeviceMemoryInGb": 8,
+      "commitHash": "main",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_ask_image", "llm_ask_audio"]
+    },
+    {
+      "name": "Gemma 3n E4B-it",
+      "modelId": "jegly/mirror",
+      "modelFile": "gemma-3n-E4B-it-int4.litertlm",
+      "description": "**The larger previous-generation multimodal Gemma.** Better reasoning than 3n E2B, and handles text, photos and audio. Gemma 4 E4B is the newer equivalent and usually the better choice. 4.9 GB · 32K context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 4919541760,
+      "minDeviceMemoryInGb": 12,
+      "commitHash": "main",
+      "llmSupportImage": true,
+      "llmSupportAudio": true,
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image", "llm_ask_audio"],
+      "bestForTaskTypes": ["llm_chat", "llm_ask_image", "llm_ask_audio"]
+    },
+    {
+      "name": "Gemma 3 1B-IT (Snapdragon)",
+      "modelId": "jegly/mirror",
+      "modelFile": "Gemma3-1B-IT_q4_ekv1280_sm8750.litertlm",
+      "description": "**For Snapdragon phones only** (8 Gen 1 through 8 Elite 2). Gemma 3 1B rebuilt for Snapdragon AI hardware — much faster there than the standard build, and a small 0.7 GB download. On other phones choose plain Gemma 3 1B-IT. Text only. 0.7 GB · 1280-token context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 689291264,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "main",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 1280,
+        "maxTokens": 1280,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"],
+      "socToModelFiles": {"sm8550": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_sm8550.litertlm", "commitHash": "main", "sizeInBytes": 690143232}, "sm8650": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_sm8650.litertlm", "commitHash": "main", "sizeInBytes": 690094080}, "sm8750": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_sm8750.litertlm", "commitHash": "main", "sizeInBytes": 689291264}, "sm8750-ab": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_sm8750.litertlm", "commitHash": "main", "sizeInBytes": 689291264}, "sm8850": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_sm8850.litertlm", "commitHash": "main", "sizeInBytes": 693747712}}
+    },
+    {
+      "name": "Gemma 3 1B-IT (MediaTek)",
+      "modelId": "jegly/mirror",
+      "modelFile": "Gemma3-1B-IT_q4_ekv1280_mt6993.litertlm",
+      "description": "**For MediaTek Dimensity phones only** (9300+, 9400 Pro, 9400+). Gemma 3 1B rebuilt for MediaTek AI hardware — much faster there than the standard build. On other phones choose plain Gemma 3 1B-IT. Text only. 1.0 GB · 1280-token context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 1020411904,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "main",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 1280,
+        "maxTokens": 1280,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"],
+      "socToModelFiles": {"mt6989": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_mt6989.litertlm", "commitHash": "main", "sizeInBytes": 1032830976}, "mt6991": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_mt6991.litertlm", "commitHash": "main", "sizeInBytes": 1033814016}, "mt6993": {"modelFile": "Gemma3-1B-IT_q4_ekv1280_mt6993.litertlm", "commitHash": "main", "sizeInBytes": 1020411904}}
+    },
+    {
+      "name": "Gemma 3 270M (Snapdragon)",
+      "modelId": "jegly/mirror",
+      "modelFile": "gemma3-270m-it-q8.qualcomm.sm8750.litertlm",
+      "description": "**Tiny and instant — for Snapdragon phones only** (8 Gen 1 through 8 Elite 2). At 270M parameters this replies the moment you hit send, but keep questions simple; it has the fewest parameters of any model in Box and answers accordingly. Text only. 0.5 GB · 4096-token context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 461340672,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "main",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"],
+      "socToModelFiles": {"sm8550": {"modelFile": "gemma3-270m-it-q8.qualcomm.sm8550.litertlm", "commitHash": "main", "sizeInBytes": 461750272}, "sm8650": {"modelFile": "gemma3-270m-it-q8.qualcomm.sm8650.litertlm", "commitHash": "main", "sizeInBytes": 461766656}, "sm8750": {"modelFile": "gemma3-270m-it-q8.qualcomm.sm8750.litertlm", "commitHash": "main", "sizeInBytes": 461340672}, "sm8750-ab": {"modelFile": "gemma3-270m-it-q8.qualcomm.sm8750.litertlm", "commitHash": "main", "sizeInBytes": 461340672}, "sm8850": {"modelFile": "gemma3-270m-it-q8.qualcomm.sm8850.litertlm", "commitHash": "main", "sizeInBytes": 463011840}}
+    },
+    {
+      "name": "Gemma 3 270M (MediaTek)",
+      "modelId": "jegly/mirror",
+      "modelFile": "gemma3-270m-it-q8.mediatek.mt6993.litertlm",
+      "description": "**Tiny and instant — for MediaTek Dimensity phones only** (9400 Pro, 9400+). Replies the moment you hit send, but keep questions simple; at 270M parameters it has the fewest of any model in Box and answers accordingly. Text only. 0.6 GB · 4096-token context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 554663936,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "main",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "npu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"],
+      "socToModelFiles": {"mt6991": {"modelFile": "gemma3-270m-it-q8.mediatek.mt6991.litertlm", "commitHash": "main", "sizeInBytes": 554467328}, "mt6993": {"modelFile": "gemma3-270m-it-q8.mediatek.mt6993.litertlm", "commitHash": "main", "sizeInBytes": 554663936}}
+    },
+    {
+      "name": "Gemma 3 1B-IT",
+      "modelId": "jegly/mirror",
+      "modelFile": "gemma3-1b-it-int4.litertlm",
+      "description": "**Runs on practically anything.** A compact, quick Gemma for everyday questions and short writing, with a small download and modest memory needs. Less capable than Gemma 4 E2B, but far lighter. Text only. 0.6 GB · 4096-token context · Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 584417280,
+      "minDeviceMemoryInGb": 4,
+      "commitHash": "main",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"]
+    },
+    {
+      "name": "Granite-4.0-350M",
+      "modelId": "litert-community/granite-4.0-350m-litert-lm",
+      "modelFile": "granite-4.0-350m_q8_ekv1280.litertlm",
+      "description": "**Tiny and fast, runs on anything.** IBM's smallest instruct model — good for quick questions and older phones. Don't expect depth or long answers. Text only. 0.5 GB · 1280-token context · Apache-2.0.",
+      "sizeInBytes": 468209584,
+      "commitHash": "6f1e9bce89b174930a79de82d0dcdede708f8c34",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 1280,
+        "maxTokens": 1280,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "MiniCPM5-1B",
+      "modelId": "litert-community/MiniCPM5-1B",
+      "modelFile": "minicpm_dynamic_wi8_afp32_gpu_opt.litertlm",
+      "description": "**Punches above its weight, in English and Chinese.** OpenBMB describe it as state-of-the-art for its 1B class, and it is a good pick if you want solid Chinese as well as English. Text only. 1.1 GB · 4096-token context · int8, GPU-optimised · Apache-2.0.",
+      "sizeInBytes": 1098475296,
+      "commitHash": "1b5f0e2fc5010cfb834605376817b9b1b6434465",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "MiniCPM5-1B (int4)",
+      "modelId": "litert-community/MiniCPM5-1B",
+      "modelFile": "minicpm_wi4b32_wi8_afp32.litertlm",
+      "description": "**The same model, a smaller download.** About 28% lighter than the int8 build, with slightly less accuracy — worth it if storage or memory is tight. Strong in English and Chinese. Text only. 0.8 GB · 4096-token context · Apache-2.0.",
+      "sizeInBytes": 792625152,
+      "commitHash": "1b5f0e2fc5010cfb834605376817b9b1b6434465",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Gemma-4-26B-A4B-it",
+      "modelId": "litert-community/gemma-4-26B-A4B-it-litert-lm",
+      "modelFile": "gemma-4-26B-A4B-it-web.litertlm",
+      "description": "**Experimental — it may not load at all.** Google's mixture-of-experts Gemma 4: 26B parameters in total but only about 4B working on each word, so it is smarter than its speed suggests. This is Google's web build, released ahead of official phone support, so treat it as a curiosity. **Requires 16 GB+ RAM** and a 15.8 GB download. Text only. Subject to Google's Gemma Terms of Use and Prohibited Use Policy.",
+      "sizeInBytes": 15786524672,
+      "minDeviceMemoryInGb": 16,
+      "commitHash": "755026618afd72ebb6d970f784d42effa67398bc",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 1.0,
+        "maxContextLength": 32000,
+        "maxTokens": 4000,
+        "accelerators": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_prompt_lab"]
+    },
+    {
+      "name": "Granite-4.0-H-1B",
+      "modelId": "litert-community/granite-4.0-h-1b",
+      "modelFile": "granite-4.0-h-1b_int8.litertlm",
+      "description": "**Unusual, and genuinely slow — one for the curious.** IBM Granite 4.0 H remembers a conversation differently to everything else here: instead of memory that grows as you chat, it keeps a fixed-size one, so long conversations don't keep slowing it down. The trade-off is that it runs on the CPU only and is sluggish — a few words per second, and around 10 seconds before it starts replying. Text only. 1.6 GB · 4096-token context · hybrid Mamba2 + attention, int8 · Apache-2.0.",
+      "sizeInBytes": 1629083040,
+      "minDeviceMemoryInGb": 6,
+      "commitHash": "16ed718d6110b4b0d46a6206caefda7571496755",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Polaris-4B-Preview",
+      "modelId": "litert-community/Polaris-4B-Preview",
+      "modelFile": "model.litertlm",
+      "description": "**Made for hard problems, not quick chat.** Trained to work through long chains of reasoning, so it writes out its thinking before answering — expect a pause, and raise max tokens to 2048 or more so it has room to finish. Overkill for everyday questions. Text only. 2.5 GB · 4096-token context · built on Qwen3-4B · Apache-2.0.",
+      "sizeInBytes": 2474865584,
+      "commitHash": "7c07087dfb46c5bdf43ee52907ceec335d4b8861",
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Nanbeige4.2-3B",
+      "modelId": "litert-community/Nanbeige4.2-3B",
+      "modelFile": "model.litertlm",
+      "description": "**Thinks before it answers.** Good for puzzles, maths and multi-step questions where you want reasoning rather than a fast reply — it lays out its reasoning first, so expect a pause. Punches above its size because each layer runs twice internally, giving 3B-class speed with deeper reasoning. Text only. 2.6 GB · 4096-token context · int4 with int8 embeddings · Apache-2.0.",
+      "sizeInBytes": 2579277808,
+      "commitHash": "9d14a2a85e7eedbd1777659636586257b787db0a",
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "SmolLM3-3B",
+      "modelId": "litert-community/SmolLM3-3B",
+      "modelFile": "SmolLM3-3B_q4_block32_ekv4096.litertlm",
+      "description": "**Multilingual and thoughtful for its size.** HuggingFace's small reasoner, trained for long documents and several languages, and unusually strong for 3B. This build is about a third smaller than the full-precision original. Text only. 2.0 GB · 4096-token context · int4 blockwise · Apache-2.0.",
+      "sizeInBytes": 2002257840,
+      "commitHash": "ee275402668b6156ca80320b5bc7d51931e5ef46",
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Ministral-3-3B-Reasoning",
+      "modelId": "litert-community/Ministral-3-3B-Reasoning-2512",
+      "modelFile": "model.litertlm",
+      "description": "**Works the problem through before replying.** Mistral's 3B reasoning model — it thinks in the open first, which suits maths and multi-step questions but means a wait before the answer. Give it a generous max-token budget. Text only. 2.3 GB · 4096-token context · int4 blockwise · Apache-2.0.",
+      "sizeInBytes": 2340524016,
+      "commitHash": "b74f20581547aef293f47448180c7acbb65f2843",
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Jan-nano",
+      "modelId": "litert-community/Jan-nano",
+      "modelFile": "model.litertlm",
+      "description": "**Trained for tool use.** A 4B reasoning model tuned to work with external tools, so it may suit Agent chat — worth trying there if that's your use case. Thinks out loud before answering, so expect a pause. Text only. 2.5 GB · 4096-token context · Apache-2.0.",
+      "sizeInBytes": 2474357680,
+      "commitHash": "c15aa78e985c3fe7cfef3f25ea984ce1e82505ca",
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat", "llm_agent_chat"]
+    },
+    {
+      "name": "Ministral-3-3B-Instruct",
+      "modelId": "litert-community/Ministral-3-3B-Instruct-2512",
+      "modelFile": "Ministral-3-3B-Instruct-2512_q4_block32_ekv4096.litertlm",
+      "description": "**Answers straight away — no thinking pause.** The snappier sibling of Ministral 3 Reasoning: same size, but it replies directly instead of working through the problem first, which makes it noticeably quicker for everyday chat. Text only. 2.3 GB · 4096-token context · int4 blockwise · Apache-2.0.",
+      "sizeInBytes": 2340982768,
+      "commitHash": "7edf21b4667a18bef048a7f0fbac2b903fb3c2f2",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "OLMo-2-1B-Instruct",
+      "modelId": "litert-community/OLMo-2-1B-Instruct",
+      "modelFile": "OLMo-2-1B-Instruct_q4_block32_ekv4096.litertlm",
+      "description": "**Fully open, small and quick.** Allen AI publish not just the weights but the training data and code behind this one, which is rare. Light enough for older or low-RAM phones at under 1 GB. Text only. 0.9 GB · 4096-token context · Apache-2.0.",
+      "sizeInBytes": 931241056,
+      "commitHash": "008b3f31143a974811acf4ce8a04828a30812278",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "Qwen3.5-0.8B",
+      "modelId": "litert-community/Qwen3.5-0.8B",
+      "modelFile": "Qwen3.5-0.8B_int8.litertlm",
+      "description": "**Stays fast as the conversation grows.** Alibaba's Qwen 3.5 at 0.8B uses a newer design where most layers keep a fixed-size memory instead of one that balloons with every message — so long chats don't slow it down or eat RAM the way other models do. Quick and small with it: around 33 words a second on a recent phone. Text only. 0.98 GB · 4096-token context · hybrid GatedDeltaNet, int8 · Apache-2.0.",
+      "sizeInBytes": 978249216,
+      "commitHash": "512221aa511cc87d7c02720b99707113276592b0",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "SmolVLM2-2.2B",
+      "modelId": "litert-community/SmolVLM2-2.2B",
+      "modelFile": "SmolVLM2-2.2B.litertlm",
+      "description": "**Ask questions about a photo.** HuggingFace's SmolVLM2 — show it a picture and ask what's in it, what a sign says, or what's happening, and you get a grounded answer entirely offline. The larger of the two SmolVLM2 models here, so better answers than the 500M. 1.5 GB · 2048-token context · image and text · Apache-2.0.",
+      "sizeInBytes": 1511353264,
+      "commitHash": "86f1fbcb8bfff747184dd79fab8248b27b7a2799",
+      "llmSupportImage": true,
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 2048,
+        "maxTokens": 2048,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image"],
+      "bestForTaskTypes": ["llm_ask_image"]
+    },
+    {
+      "name": "SmolVLM2-500M",
+      "modelId": "litert-community/SmolVLM2-500M",
+      "modelFile": "SmolVLM2-500M.litertlm",
+      "description": "**The smallest way to ask about a photo.** One of the tiniest vision models that works at all — just 361 MB, so it runs on almost anything. Answers are simpler than the 2.2B version, but it is remarkably capable for the size. 0.36 GB · 2048-token context · image and text · Apache-2.0.",
+      "sizeInBytes": 361052336,
+      "commitHash": "ac956163f90149bbf9e384ce931060172f95bf03",
+      "llmSupportImage": true,
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 2048,
+        "maxTokens": 2048,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image"],
+      "bestForTaskTypes": ["llm_ask_image"]
+    },
+    {
+      "name": "Phi-4-mini-reasoning",
+      "modelId": "litert-community/Phi-4-mini-reasoning",
+      "modelFile": "model.litertlm",
+      "description": "**Built for maths and step-by-step problems.** Microsoft's reasoning version of Phi-4 mini — it writes out its reasoning before answering, which makes it strong on maths and logic but slower to reply than the plain Instruct version. Give it a generous max-token budget. Text only. 2.8 GB · 4096-token context · MIT.",
+      "sizeInBytes": 2783974384,
+      "commitHash": "903745fb8896857d3b1aec7a2e6628d2b50bace5",
+      "capabilities": ["llm_thinking"],
+      "capabilityToTaskTypes": {
+        "llm_thinking": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"]
+      },
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "LFM2.5-1.2B-JP",
+      "modelId": "litert-community/LFM2.5-1.2B-JP",
+      "modelFile": "LFM2.5-1.2B-JP_int8.litertlm",
+      "description": "**Tuned for natural Japanese conversation.** Liquid AI's 1.2B model, specifically trained for Japanese chat rather than treating it as an afterthought. Small and quick, and its accuracy holds up despite the compression. Text only. 1.2 GB · 4096-token context · Liquid AI LFM Open License v1.0.",
+      "sizeInBytes": 1244594224,
+      "commitHash": "1737975ecbe4d5e41fa080368dd73e9b00ab31c7",
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 4096,
+        "maxTokens": 4096,
+        "accelerators": "gpu,cpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat"],
+      "bestForTaskTypes": ["llm_chat"]
+    },
+    {
+      "name": "InternVL3_5-2B",
+      "modelId": "litert-community/InternVL3_5-2B",
+      "modelFile": "model.litertlm",
+      "description": "**Ask questions about a photo — the newer InternVL.** Show it an image and ask about it; good at reading text in pictures and describing detail. Version 3.5, so generally sharper than InternVL3. Images are resized to 448×448. 1.6 GB · 2048-token context · image and text · Apache-2.0.",
+      "sizeInBytes": 1613731184,
+      "commitHash": "dbe0b593df97f09d74f9d369052704ca4d83593a",
+      "llmSupportImage": true,
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 2048,
+        "maxTokens": 2048,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image"],
+      "bestForTaskTypes": ["llm_ask_image"]
+    },
+    {
+      "name": "InternVL3-2B",
+      "modelId": "litert-community/InternVL3-2B",
+      "modelFile": "InternVL3-2B.litertlm",
+      "description": "**Ask questions about a photo.** Shanghai AI Lab's InternVL3 — show it an image and ask what's in it or what a label says. The 3.5 version above is newer; this one is slightly smaller. Images are resized to 448×448. 1.4 GB · 2048-token context · image and text · Apache-2.0.",
+      "sizeInBytes": 1430312304,
+      "commitHash": "b73757b297d4c1d1ac5e31cf4f007378748c7ad4",
+      "llmSupportImage": true,
+      "defaultConfig": {
+        "topK": 64,
+        "topP": 0.95,
+        "temperature": 0.8,
+        "maxContextLength": 2048,
+        "maxTokens": 2048,
+        "accelerators": "gpu,cpu",
+        "visionAccelerator": "gpu"
+      },
+      "taskTypes": ["llm_chat", "llm_prompt_lab", "llm_agent_chat", "llm_ask_image"],
+      "bestForTaskTypes": ["llm_ask_image"]
+    }
+  ]
+}

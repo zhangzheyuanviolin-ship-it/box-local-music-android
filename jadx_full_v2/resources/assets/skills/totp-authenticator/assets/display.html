@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOTP</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+    body { background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; min-height: 100vh; padding: 24px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .container { width: 100%; max-width: 400px; text-align: center; }
+    h1 { font-size: 1.4rem; margin-bottom: 6px; color: rgba(255,255,255,0.7); font-weight: 500; }
+    .meta { font-size: 0.75rem; color: rgba(255,255,255,0.45); margin-bottom: 32px; letter-spacing: 0.5px; }
+    .code {
+      font-family: 'Courier New', monospace;
+      font-size: 3.2rem;
+      font-weight: 700;
+      letter-spacing: 0.3rem;
+      color: #4ecca3;
+      margin-bottom: 24px;
+      user-select: all;
+      cursor: pointer;
+    }
+    .code.expiring { color: #f5a623; }
+    .code.expired { color: #e74c3c; }
+    .progress-wrap { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+    .progress { height: 100%; background: linear-gradient(to right, #4ecca3, #45b7d1); transition: width 1s linear, background 0.3s; }
+    .progress.warn { background: #f5a623; }
+    .progress.danger { background: #e74c3c; }
+    .seconds { font-size: 0.9rem; color: rgba(255,255,255,0.6); }
+    .next-row { margin-top: 28px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; color: rgba(255,255,255,0.55); }
+    .next-code { font-family: 'Courier New', monospace; letter-spacing: 0.2rem; color: rgba(255,255,255,0.8); margin-left: 6px; }
+    .copy-hint { margin-top: 18px; font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+    .toast { position: fixed; bottom: 30px; background: #4ecca3; color: #1a1a2e; padding: 10px 24px; border-radius: 100px; font-weight: 700; font-size: 0.85rem; opacity: 0; transition: opacity 0.2s; }
+    .toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Authentication Code</h1>
+    <div class="meta" id="meta">loading…</div>
+    <div class="code" id="code" title="Tap to copy">------</div>
+    <div class="progress-wrap"><div class="progress" id="progress" style="width:100%"></div></div>
+    <div class="seconds" id="seconds">—</div>
+    <div class="next-row">Next code:<span class="next-code" id="next">——</span></div>
+    <div class="copy-hint">Tap the code to copy</div>
+  </div>
+  <div class="toast" id="toast">Copied!</div>
+  <script>
+    const data = JSON.parse(localStorage.getItem('totp_auth_result') || '{}');
+    if (!data.current) {
+      document.getElementById('code').textContent = 'No code.';
+    } else {
+      document.getElementById('meta').textContent = `${data.algorithm} · ${data.period}s · ${data.digits} digits`;
+      document.getElementById('code').textContent = data.current;
+      document.getElementById('next').textContent = data.next;
+      const codeEl = document.getElementById('code');
+      const progEl = document.getElementById('progress');
+      const secEl = document.getElementById('seconds');
+      const toast = document.getElementById('toast');
+
+      codeEl.addEventListener('click', () => {
+        const current = codeEl.textContent.replace(/\s/g, '');
+        navigator.clipboard.writeText(current).then(() => {
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 1200);
+        });
+      });
+
+      function tick() {
+        const now = Math.floor(Date.now() / 1000);
+        const slot = Math.floor(now / data.period);
+        const origSlot = Math.floor(data.generatedAtSec / data.period);
+        if (slot > origSlot) {
+          // Code rotated — reload might be needed, but we only know the current/next at gen time.
+          // Show "expired" state until user regenerates.
+          codeEl.classList.add('expired');
+          secEl.textContent = 'Code rotated — run the skill again for a fresh code.';
+          progEl.style.width = '0%';
+          return;
+        }
+        const remaining = data.period - (now % data.period);
+        const pct = (remaining / data.period) * 100;
+        progEl.style.width = pct + '%';
+        secEl.textContent = `${remaining}s remaining`;
+        progEl.classList.remove('warn', 'danger');
+        codeEl.classList.remove('expiring', 'expired');
+        if (remaining <= 5) {
+          progEl.classList.add('danger');
+          codeEl.classList.add('expired');
+        } else if (remaining <= 10) {
+          progEl.classList.add('warn');
+          codeEl.classList.add('expiring');
+        }
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+  </script>
+</body>
+</html>
