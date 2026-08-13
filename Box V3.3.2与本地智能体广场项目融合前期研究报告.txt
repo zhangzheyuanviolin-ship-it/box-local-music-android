@@ -1,0 +1,1566 @@
+================================================================================
+                  Box v3.3.2 全方位技术逆向分析报告
+            （基于 Box_v3.3.2_Main_Signed_Release.apk 完整反编译）
+================================================================================
+
+报告编制日期：2026-08-11
+分析样本：Box v3.3.2（com.box.gallery）
+原始 APK SHA256：b1d15fd046edd08ea2d7b6ba371a66e066a7a6a6b0159e383a5d143cfe400fcf
+原始 APK 大小：455MB
+原始 APK 路径：/sdcard/下载管理/应用安装包仓库/2026-08-04_最新发现安卓本地AI应用/
+                Box_v3.3.2_Main_Signed_Release.apk
+解包产物路径：/sdcard/下载管理/Operit/box_decode/（apktool decode 输出）
+分析工具：apktool + smali 静态分析 + grep_code 上下文检索
+================================================================================
+
+
+--------------------------------------------------------------------------------
+背景交代（终极目标，2026-08-11 张老师提出）
+--------------------------------------------------------------------------------
+本报告为核心任务提供背景信息与事实整理。
+
+终极目标是：将张老师自有的"本地智能体广场"（local-agent-plaza）的最新版本，
+与 Box 的最新版本（v3.3.3）在功能层面进行融合；把本地智能体广场尚未实现、
+而 Box 已具备的功能全部容纳进来。
+
+本报告仅作为背景信息的交代，以及两个仓库已知信息的整理。对本报告内容的正确性
+判定、技术实现方案、融合路径规划、代码编写，不在本报告范围之内，将交由专门的
+编码优化智能体（或相关负责方）自行规划与执行。
+
+后续章节内容均只做信息陈述：凡是"安装包反编译结果"与"线上公开可查信息"之间
+存在矛盾或差异的内容，只并列标注，不做"哪个正确、哪个错误"的最终判断。
+
+--------------------------------------------------------------------------------
+
+
+目录
+=====
+第一部分  应用身份与基本架构
+第二部分  整体技术架构与依赖关系
+第三部分  应用壳层（Box 在 Google AI Edge Gallery 基础上的二次改造）
+第四部分  主题系统（自定义主题切换）
+第五部分  本地图像生成模型
+    5.1 FLUX.2 klein 4B
+    5.2 Z-Image-Turbo 6B
+第六部分  本地音乐与音效生成模型
+    6.1 SoundGen（基础版）
+    6.2 SoundGen HD（高清版）
+    6.3 SoundGen HD Long（超长音频版）
+第七部分  统一推理后端：Google LiteRT
+第八部分  MobileActions 工具集（系统级 API 桥接）
+第九部分  AgentChat 模块（AI 对话能力）
+第十部分  TinyGarden 模块（小游戏实验场）
+第十一部分 认证系统与数据库
+第十二部分  模型与资源清单总览
+第十三部分  附录：混淆类名索引
+第十四部分  HF 在线仓库 URL 与文件清单实际验证结果
+第十五部分  Box 仓库最新整体状况（2026-08-11 线上核查）
+第十六部分  仓库历史脉络与协作状态
+第十七部分  本地智能体广场 / 智能实验室 背景信息（对照项目概况）
+=====
+第一部分  应用身份与基本架构
+第二部分  整体技术架构与依赖关系
+第三部分  应用壳层（Box 在 Google AI Edge Gallery 基础上的二次改造）
+第四部分  主题系统（自定义主题切换）
+第五部分  本地图像生成模型
+    5.1 FLUX.2 klein 4B
+    5.2 Z-Image-Turbo 6B
+第六部分  本地音乐与音效生成模型
+    6.1 SoundGen（基础版）
+    6.2 SoundGen HD（高清版）
+    6.3 SoundGen HD Long（超长音频版）
+第七部分  统一推理后端：Google LiteRT
+第八部分  MobileActions 工具集（系统级 API 桥接）
+第九部分  AgentChat 模块（AI 对话能力）
+第十部分  TinyGarden 模块（小游戏实验场）
+第十一部分 认证系统与数据库
+第十二部分  模型与资源清单总览
+第十三部分  附录：混淆类名索引
+
+
+================================================================================
+第一部分  应用身份与基本架构
+================================================================================
+
+1.1 基本信息
+------------
+- 应用名称：Box（显示名）
+- 包名：com.box.gallery
+- 版本：3.3.2（versionCode 见 AndroidManifest.xml）
+- 安装包类型：APK（Main_Signed_Release，已签名正式版）
+- 支持架构：arm64-v8a（主要 ABI，承载所有本地 AI 模型）
+- 最低 SDK / 目标 SDK：见 AndroidManifest.xml（典型 AI Edge Gallery 派生项目为 SDK 26 / 34）
+- 权限：包含 INTERNET（用于 HF 模型下载）、READ/WRITE_EXTERNAL_STORAGE（用于模型缓存）
+                CAMERA（用于部分 mobileactions 工具）、RECORD_AUDIO 等
+
+1.2 起源与定位
+--------------
+Box 是 Google AI Edge Gallery 的二次 fork（衍生作品）。
+- 上游：Google AI Edge Gallery（Google 官方开源项目，展示 LiteRT 在 Android 上的能力）
+- 下游：Box 团队在保留 Google 所有 LiteRT 模型能力的基础上，叠加了：
+  * 自定义应用壳（com.box.gallery 命名空间）
+  * AgentChat 模块（多轮对话与函数调用）
+  * MobileActions 模块（系统级工具桥接：手电筒、联系人、短信、地图导航、摄像头等）
+  * TinyGarden 模块（一个独立的小游戏 / 沙盒实验场）
+  * 主题系统（Catppuccin / Dracula 等自定义主题）
+  * 数据库层（Room / SQLite，用于历史记录持久化）
+  * 认证系统（本地认证，无后端服务器依赖）
+
+1.3 应用主入口
+--------------
+- Application 类：com.box.gallery.GalleryApplication
+- 主 Activity：com.box.gallery.MainActivity（2633 行 smali）
+- 启动流程：
+  1. GalleryApplication.onCreate() 初始化主题系统、数据库、LiteRT 运行时环境
+  2. MainActivity 加载 Compose UI（被 R8 高度混淆）
+  3. 末尾调用 LIIIlOi1ooii 认证类（"Authenticate to access your chats" / "Cancel" / "Box" 对话框）
+  4. 认证通过后进入主界面（Chat / Image Generation / Music Generation / Settings 四个 Tab）
+
+
+================================================================================
+第二部分  整体技术架构与依赖关系
+================================================================================
+
+2.1 技术栈
+----------
+- UI 框架：Jetpack Compose（被 R8 inline 后主题系统混入主类）
+- 编程语言：Kotlin（编译后被 R8 混淆成短类名）
+- 异步框架：Kotlin 协程（Continuation 状态机模式，可见 invokeSuspend + packed-switch）
+- AI 推理后端：Google LiteRT（com.google.ai.edge.litert.*，统一 GPU/CPU 调度）
+- 模型格式：LiteRT (.tflite) — 全部 int8 量化 + chunked 拆分
+- 文本编码：Qwen 系列（Qwen3 / Qwen2.5）+ T5Gemma 混合架构（音频侧）
+- 图像生成：FLUX.2 klein 4B + Z-Image-Turbo 6B（两个 diffusion transformer）
+- 音频生成：AudioLDM / AudioLDM2 架构（latent diffusion）
+- 数据库：Room / SQLite（Box 自定义层）
+- 网络：HuggingFace Hub 下载协议（huggingface.co 仓库直连）
+
+2.2 关键架构图（逻辑层次）
+------------------------
+┌─────────────────────────────────────────────────────────────┐
+│  UI 层 (Jetpack Compose)                                    │
+│  ├─ MainActivity (R8 inline 后混淆主类)                       │
+│  ├─ Chat / Image / Music / Settings 四个 Tab                 │
+│  └─ 自定义主题系统 (Catppuccin / Dracula / 默认)               │
+├─────────────────────────────────────────────────────────────┤
+│  业务逻辑层 (Kotlin 协程 + ViewModel)                         │
+│  ├─ GalleryApplication (初始化 + 主题注册)                    │
+│  ├─ AgentChat 模块 (多轮对话 + 工具调用)                      │
+│  ├─ MobileActions 工具集 (系统 API 桥接)                     │
+│  └─ TinyGarden 模块 (小游戏实验场)                            │
+├─────────────────────────────────────────────────────────────┤
+│  模型引擎层 (LiteRT CompiledModel 封装)                      │
+│  ├─ FluxKleinEngine (Il100ioI1I) - FLUX.2 klein 4B          │
+│  ├─ ZImageEngine (Oo1O1iII011) - Z-Image-Turbo 6B          │
+│  ├─ SoundGenEngine (OiIiIIOOiO) - SoundGen                 │
+│  ├─ SoundGenHdEngine (OiIiIl0) - SoundGen HD / HD Long     │
+│  └─ StableDiffusion Engine (libstablediffusion.so 原生 C++) │
+├─────────────────────────────────────────────────────────────┤
+│  推理后端层 (Google LiteRT)                                  │
+│  ├─ CompiledModel (int8 + chunked .tflite)                   │
+│  ├─ GPU 委托 (Accelerator.GPU + GpuOptions FP32)            │
+│  ├─ CPU Fallback (Accelerator.CPU)                          │
+│  └─ NPU 委托 (Qualcomm QNN HTP，可选)                        │
+├─────────────────────────────────────────────────────────────┤
+│  原生库层 (52 个 arm64-v8a .so)                              │
+│  ├─ liblitertlm_jni.so (LiteRT JNI 桥接)                    │
+│  ├─ libQnnHtpPrepare.so (高通 NPU)                          │
+│  ├─ libggml-vulkan.so (Vulkan GPU 委托)                      │
+│  ├─ libonnxruntime.so (ONNX Runtime)                        │
+│  ├─ libstablediffusion.so (Stable Diffusion 原生 C++)        │
+│  └─ 其他 Vulkan / OpenCL / EGL 系统桥接                      │
+└─────────────────────────────────────────────────────────────┘
+
+2.3 协程状态机模式
+------------------
+Box 中所有推理调用都遵循标准的 Kotlin suspend lambda 反编译模式：
+- 类继承 LOilll1I（CoroutineLambda 子类）
+- 接口实现 LIlIi000IOo（Function2<CoroutineScope, Continuation, Object>）
+- 方法 invokeSuspend + packed-switch 实现状态机
+- 本报告中 OiIiI0I0oIio 类（5142 行）是 SoundGen / SoundGen HD 共用的核心推理循环，
+  其 packed-switch 0/1 分别对应 SoundGen 和 SoundGen HD 两种调用模式
+
+
+================================================================================
+第三部分  应用壳层（Box 在 Google AI Edge Gallery 基础上的二次改造）
+================================================================================
+
+3.1 自定义命名空间 com.box.gallery
+----------------------------------
+Box 在 com.box.gallery 包名下加入了以下壳层类（部分被 R8 inline 后混入 smali 主目录）：
+- GalleryApplication.smali - Application 入口
+- MainActivity.smali - 主 Activity（2633 行，调用 LIIIlOi1ooii 认证）
+- LIIIlOi1ooii - 认证对话框类（"Authenticate to access your chats"）
+- LI1olil1illO - 认证后的导航初始化类（在 smali_classes2/ 中）
+
+3.2 Google AI Edge Gallery 原有命名空间 com.google.ai.edge.gallery
+-----------------------------------------------------------------
+- customtasks/agentchat/ - 多轮对话模块
+- customtasks/mobileactions/ - 系统工具模块
+- customtasks/tinygarden/ - 小游戏实验场
+- ui/theme/ - 主题系统（Compose 主题，被 R8 inline）
+
+3.3 主要壳类代码片段
+---------------------
+GalleryApplication 核心代码（部分）：
+  .class public final Lcom/box/gallery/GalleryApplication;
+  .super Landroid/app/Application;
+  // 初始化主题、数据库、LiteRT 环境
+
+MainActivity 末尾代码（第 2550-2633 行）：
+  new-instance v0, LI1olil1illO;  // 认证初始化
+  // 触发 LIIIlOi1ooii 认证对话框
+  // "Authenticate to access your chats" / "Cancel" / "Box"
+
+
+================================================================================
+第四部分  主题系统（自定义主题切换）
+================================================================================
+
+4.1 主题实现
+------------
+- 系统通过 "custom_theme" SharedPreferences key 存储主题选择
+- 三处引用：
+  * O11lli.smali - UI 主题应用层
+  * Ol1i110i1il.smali - 设置页
+  * GalleryApplication.smali - 初始化
+- 可选主题：Catppuccin（亮色 / 暗色）、Dracula（亮色 / 暗色）、Box 默认主题
+
+4.2 Compose 主题的 inline 模式
+------------------------------
+Box 没有独立的 com/google/ai/edge/gallery/ui/theme/ 包，
+因为 Compose 主题被 R8 inline 到混淆主类里了。
+grep_code 搜索 "Lcom/google/ai/edge/gallery/ui/theme" 在 22189 个文件中 0 次命中。
+
+
+================================================================================
+第五部分  本地图像生成模型
+================================================================================
+
+5.1 FLUX.2 klein 4B
+--------------------
+
+5.1.1 模型身份
+- 原始模型：Black Forest Labs FLUX.2 klein（开源社区版本）
+- HF 仓库：https://huggingface.co/litert-community/FLUX.2-klein-4B-LiteRT
+- 发布者：Google LiteRT 团队（litert-community 组织）
+- 模型规模：约 4B 参数
+- 模型格式：chunked int8 LiteRT graphs（拆分到 10 个 .tflite 子图）
+- 总下载量：约 7.4GB
+
+5.1.2 完整文件清单
+| 子图文件                   | 含义                                     | 估算大小  |
+|---------------------------|------------------------------------------|-----------|
+| ke_enc0.tflite            | Klein Encoder 第一个 chunk                | ~700MB    |
+| ke_enc1.tflite            | Klein Encoder 第二个 chunk                | ~700MB    |
+| ke_enc2.tflite            | Klein Encoder 第三个 chunk                | ~700MB    |
+| kc_prep.tflite            | Klein Core 预处理（patch embed + pos）    | ~500MB    |
+| kc_double0.tflite         | Klein Core 双流 DiT chunk 0               | ~750MB    |
+| kc_double1.tflite         | Klein Core 双流 DiT chunk 1               | ~750MB    |
+| kc_single0.tflite         | Klein Core 单流 DiT chunk 0               | ~500MB    |
+| kc_single1.tflite         | Klein Core 单流 DiT chunk 1               | ~500MB    |
+| kc_single2.tflite         | Klein Core 单流 DiT chunk 2               | ~500MB    |
+| kc_single3.tflite         | Klein Core 单流 DiT chunk 3               | ~500MB    |
+| kc_final.tflite           | Klein Core 输出投影 + AdaLN               | ~500MB    |
+| kv_vae.tflite             | Klein VAE（KL-VAE 解码器）                | ~700MB    |
+| tokenizer/qwen_embed_fp16.bin | Qwen3 Embedding 表（fp16）             | ~200MB    |
+
+5.1.3 内置辅助资源（assets/fluxklein/，约 960KB）
+- enc_cos.bin / enc_sin.bin - 文本编码器位置编码 cos/sin
+- dit_cos.bin / dit_sin.bin - DiT 位置编码 cos/sin
+- sigmas.bin - 预计算 diffusion sigma schedule
+- temb.bin - 时间步嵌入 MLP 权重
+- bn_mean.bin / bn_std.bin - BatchNorm 归一化参数
+
+5.1.4 引擎类（混淆名：Il100ioI1I）
+- 总行数：1201 行 smali
+- 字段：
+  * I00000oIO : Lcom/google/ai/edge/litert/Environment - LiteRT 运行时环境
+  * I00000oOI : LOIloI11OoI01 - 内部数据类型（可能是 Pair<String, Long>）
+  * I0000Il00O : Ljava/io/File - 模型目录
+  * I0000O : Ljava/io/RandomAccessFile - 随机访问文件句柄
+  * I0000oI00 : Ljava/nio/MappedByteBuffer - 内存映射常量文件
+- 方法：
+  * I00000oIO() - 释放所有资源（Environment + File + RandomAccessFile + MappedByteBuffer）
+  * I0000Il00O(Context, String): [F - 直接方法，从 assets 读取 .bin 常量文件
+    （AssetManager.open → ByteBuffer.wrap → FloatBuffer.get 模式）
+  * I00000oOI(File, String, List): ArrayList - 模型加载主方法
+    流程：构造 CompiledModel$Options(GPU) → GpuOptions(FP32, priority=0x7ff7)
+        → CompiledModel$Companion.create(模型路径, Options, Environment)
+        → GPU 失败时 catchall → 切到 CPU 重试
+        → 创建 Input/Output Buffers → 写入输入 → run → 读取输出
+  * I0000O([F): [F - 单步 denoise 主方法（仅 ~1287 行内嵌）
+
+5.1.5 失败兜底日志
+- Il10IiOO.smali 行 1465：
+  "Failed to load FLUX.2 klein (check that all files finished downloading)"
+- Il100ioI1I.smali 行 393：
+  Log.w("FluxKleinEngine", "<file>.tflite failed to compile on GPU, retrying on CPU", throwable)
+
+5.1.6 推理特性
+- 输出分辨率：256×256（16×16 latent grid）
+- Guidance-free：只跑条件正路，2 个 forward 不跑无条件负路，节省 50% DiT forward 次数
+  这是 FLUX.2 klein 区别于原版 FLUX 的核心创新
+- 4 步 DiT 采样（实际 8 个 forward：4 个单流 + 4 个双流）
+- GPU 优先 + CPU fallback
+- 进度回调：通过 Function1.invoke(Float) 上报，UI 显示 "Generating image..."
+
+5.1.7 与其他 FLUX 实现的对比
+- FLUX.1 schnell（官方）：1-4 步采样，需要 CFG
+- FLUX.1 dev（官方）：20-50 步采样，需要 CFG
+- FLUX.2 klein（社区）：4 步采样，guidance-free，本地友好
+
+
+5.2 Z-Image-Turbo 6B
+---------------------
+
+5.2.1 模型身份
+- 原始模型：阿里 Tongyi 实验室 Z-Image-Turbo（开源 Turbo 蒸馏版）
+- HF 仓库：https://huggingface.co/litert-community/Z-Image-Turbo-LiteRT
+- 发布者：Google LiteRT 团队（litert-community 组织）
+- 模型规模：约 6B 参数
+- 模型格式：chunked int8 LiteRT graphs（拆分到 4 个 .tflite 子图）
+- 总下载量：约 10.6GB
+
+5.2.2 完整文件清单
+| 子图文件                    | 含义                                | 估算大小  |
+|----------------------------|-------------------------------------|-----------|
+| qwen_enc.tflite            | Qwen 文本编码器主图                  | ~3GB      |
+| z_embc.tflite              | Z-Image Embedding C（图编码+timestep）| ~1GB     |
+| z_refc.tflite              | Z-Image Refiner C（图精化 DiT 主体） | ~5GB      |
+| vae_decoder.tflite         | VAE 解码器                           | ~800MB    |
+
+复用了 FLUX.2 仓库里部分共享文件：
+- enc_cos.bin / enc_sin.bin
+- dit_cos.bin / dit_sin.bin
+- sigmas.bin
+- temb.bin
+- bn_mean.bin / bn_std.bin
+
+5.2.3 内置辅助资源（assets/zimage/，约 2.1MB）
+- zimage_cap_pad_token.bin - Caption padding token
+- zimage_temb_mlp.bin - Timestep + Embedding MLP 权重
+
+5.2.4 引擎类（混淆名：Oo1O1iII011）
+- 总行数：2816 行 smali（比 FluxKlein 大一倍多）
+- 字段：
+  * I00000oIO : Lcom/google/ai/edge/litert/Environment
+  * I00000oOI : LOIloI11OoI01 - Pair 类型
+  * I0000Il00O : Ljava/io/File - 模型目录
+  * I0000O : Ljava/io/RandomAccessFile
+  * I0000oI00 : Ljava/nio/MappedByteBuffer
+  * I0001Ioi1lo : [F - 运行时计算的 RoPE cos 数组
+  * I000II : [F - 运行时计算的 RoPE sin 数组
+  * I000O01llI0 : Z - volatile 标志位（是否已初始化）
+- 方法：
+  * I0000oI00(Context, String): [F - 从 assets 读取 .bin 常量（与 FluxKlein 同模式）
+  * I0001Ioi1lo([[I): LOI1iiIoI0OOi - RoPE cos/sin 实时计算
+    算法：Math.cos(2*PI*freq*idx) / Math.sin(2*PI*freq*idx)
+    标准 RoPE 频率生成（行 196 const-wide/high16 v10, 0x4000000000000000L 即 2.0）
+  * I00000oOI(File, String): LOI1iiIoI0OOi - 初始化入口
+  * I00000oIO(File, [F, [F, int, [F, continuation): [F - 核心 denoise 方法
+    5 个入参：
+      - File：权重目录
+      - [F：text encoder 输出（Qwen 嵌入）
+      - [F：conditioning embeddings（caption embed）
+      - int：当前 step index
+      - [F：当前 latent
+    返回 [F：更新后的 latent
+  * I0000O(File, String, List): ArrayList - LiteRT 图加载（GPU→CPU fallback）
+
+5.2.5 进度回调
+- "caption" 0.02f - caption 阶段进度 2% 阈值
+- "image" 0.08f - image 阶段进度 8% 阈值
+- 通过 LIlIi000IOo.invoke(String, Float) 接口上报
+
+5.2.6 推理特性
+- 输出分辨率：256×256（16×16 latent grid）
+- Guidance-free Turbo 采样：9 步去噪（具体步数在 z_refc.tflite 内部固化）
+- 更轻量的 cond 处理：RoPE cos/sin 由运行时计算（而不是预存为 .bin），节省 assets 空间
+- Latent 维度：3840（与 SoundGen 一致）
+- Patch 维度：32，batch 维度：16
+- DiT 主体：32 层 chunk 循环（行 407：mul-int/lit16 v2, p4, 0xf00 即 3840，循环 0x20=32 次）
+- 输入到 z_refc.tflite：3 个数组 — caption embed + cos + sin（行 500：filled-new-array {p3, v1, p4}, [[F）
+
+
+================================================================================
+第六部分  本地音乐与音效生成模型
+================================================================================
+
+6.0 共同架构：AudioLDM / Stable Audio 风格 Latent Diffusion
+--------------------------------------------------------------
+所有三个音频模型都遵循 latent diffusion 模式：
+  文本 → Text Encoder → Cross-Attention Conditioning → DiT/UNet 1D
+  → 反向扩散 8/N 步 → Latent → VAE Decoder → Waveform (PCM)
+
+统一后端：Google LiteRT（com.google.ai.edge.litert.CompiledModel）
+HF 仓库：jegly/audio（社区）
+辅助仓库：jegly/noise（提供 Gaussian 噪声）
+
+
+6.1 SoundGen（基础版）
+----------------------
+
+6.1.1 模型身份
+- 内部 ID：soundgen
+- 显示名：SoundGen
+- 文案：Describe a sound or piece of music and generate it on-device — fully offline
+- HF 仓库：https://huggingface.co/jegly/audio/resolve/main/
+- 模型架构：AudioLDM 基础架构（float32）
+
+6.1.2 完整文件清单
+| 文件                        | 含义                              | 实际大小  |
+|----------------------------|-----------------------------------|-----------|
+| dit_model.tflite           | 主 DiT（UNet1D）                   | 344MB     |
+| conditioners_float32.tflite | 文本条件编码器（CLAP / T5 float32）| 440MB     |
+| autoencoder_model.tflite   | 音频 VAE 解码器                    | 312MB     |
+| spiece.model               | SentencePiece 词表                | 494KB     |
+
+本地重命名：
+- sg_core.litert
+- sg_text.litert
+- sg_decode.litert
+- sg_vocab.spm
+总下载量：约 1.1GB
+
+6.1.3 引擎类（混淆名：OiIiIIOOiO）
+- 总行数：375 行 smali（相对简洁）
+- 字段：
+  * I00000oIO : Lcom/google/ai/edge/litert/CompiledModel - 第一个模型图
+  * I00000oOI : Lcom/google/ai/edge/litert/CompiledModel - 第二个模型图
+  * I0000Il00O : Lcom/google/ai/edge/litert/CompiledModel - 第三个模型图
+  * I0000O : LOiIlOiOlol - 内部数据类型（可能是 List<CompiledModel> 或类似）
+- 方法：
+  * I00000oIO(List) - 静态释放方法：遍历 List 调用 TensorBuffer.close() + JniHandle.close()
+  * I00000oOI() - 实例释放方法：依次释放三个 CompiledModel + I0000O
+  * I0000Il00O(String, float, long, Context, callback, continuation) - 推理入口
+    7 参数：prompt + 强度 + seed + 上下文 + 回调 + 协程
+
+6.1.4 共享协程体（混淆名：OiIiI0I0oIio）
+- 总行数：5142 行 smali（最大单类）
+- 继承：LOilll1I（CoroutineLambda 子类）
+- 接口：LIlIi000IOo（Function2<CoroutineScope, Continuation, Object>）
+- packed-switch 0/1 共用 suspend lambda
+  * packed-switch 0: SoundGen 推理循环（接收 OiIiIIOOiO 引擎）
+  * packed-switch 1: SoundGen HD 推理循环（接收 OiIiIl0 引擎）
+- 字段：
+  * I00Ol10 : I - packed-switch 索引
+  * I00Ol1ll1 : String - prompt
+  * I00OloOo : Function1 - 进度回调
+  * I00i01iIIliI : J - seed
+  * I00i0O : F - 强度
+  * I00i0ilIl0i : Context - 上下文
+  * I00i0oil : Object - 引擎持有（OiIiIIOOiO 或 OiIiIl0）
+
+6.1.5 SoundGen 推理循环细节
+- BPE 分词阶段：行 494-800，标准 SentencePiece BPE 算法（拼字符 + 查 BPE 表 + 替换 + 过滤 + 转换 UTF-8）
+- 采样阶段核心参数：
+  * 0x100 = 256 - mel bins 频谱维度
+  * 0x1000 = 4096 - 中间隐藏维度
+  * 0x45700000 = 3840.0f - 标准差基准
+  * 0x3f000000 = 0.5f - 缩放偏置
+  * 0x3d4ccccd = 0.05f - 强度默认值
+  * 0x3f266666 = 0.65f - 高斯 sigma 计算系数
+  * 0x3f4ccccd = 0.8f - 默认 CFG scale
+  * 0x41000000 = 8.0f - 默认 diffusion 步数
+- 关键循环变量：v1 < 0x8（行 1638-1642）— 8 步 diffusion 循环
+- Sigma schedule：8 元素 [F 数组（行 1332 new-array v7, v7, [F，其中 v7=9-1=8 个实际值）
+  - 最后一个元素强制 = 1.0f
+  - 标准 AudioLDM timesteps = [1.0, ..., 0.0] + Karras sigmas
+  - 计算公式：Math.exp(...)（行 1321）
+- 噪声采样：java.util.Random(seed).nextGaussian()（行 1466）
+- 模型调用：3 次 CompiledModel.run$default
+  * 第 1 次（行 418）：text encoder
+  * 第 2 次（行 690）：DiT core
+  * 第 3 次（行 843）：VAE decoder
+
+6.1.6 推理特性
+- 输出时长：约 24 秒
+- 采样步数：8 步
+- CFG scale：0.8（默认）
+- 强度：0.05（默认）
+- 隐层维度：3840
+- Mel bins：256
+
+
+6.2 SoundGen HD（高清版）
+--------------------------
+
+6.2.1 模型身份
+- 内部 ID：soundgen_hd
+- 显示名：SoundGen HD
+- 文案：Describe a sound or piece of music and generate it on-device in higher quality (up to ~24s)
+- HF 仓库：https://huggingface.co/jegly/audio/resolve/main/
+- 噪声仓库：https://huggingface.co/jegly/noise/resolve/main/
+- 模型架构：AudioLDM2 + T5Gemma 文本编码器（int8 量化）
+
+6.2.2 完整文件清单
+| 文件                          | 含义                                       | 实际大小   |
+|------------------------------|--------------------------------------------|-----------|
+| dit_L256_int8.tflite         | DiT（L256 = 256 长度，int8 量化）           | 1.47GB    |
+| t5gemma_enc_int8.tflite      | T5Gemma 混合架构文本编码器（int8）          | 287MB     |
+| ae_dec_L256_int8.tflite      | VAE 解码器（256 长度）                      | 434MB     |
+| tokenizer.model              | SentencePiece 词表                          | 265KB     |
+
+本地重命名：
+- sghd_core.litert
+- sghd_text.litert
+- sghd_decode.litert
+- sghd_vocab.spm
+总下载量：约 2.1GB
+
+6.2.3 引擎类（混淆名：OiIiIl0）
+- 总行数：406 行 smali
+- 字段：
+  * I0001Ioi1lo : Lcom/google/ai/edge/litert/CompiledModel - text 编码器
+  * I000II : Lcom/google/ai/edge/litert/CompiledModel - DiT core
+  * I000O01llI0 : Lcom/google/ai/edge/litert/CompiledModel - VAE decoder
+  * I000OOo1O : LllOO00lI - tokenizer（SentencePiece 实例）
+- 构造器：<init>(int) - 接收 L256/L2048 长度开关
+  * int=0 → L256（SoundGen HD）
+  * int=1 → L2048（SoundGen HD Long）
+- 推理方法：I0000Il00O(String, float, long, Context, callback, continuation)
+
+6.2.4 T5Gemma 文本编码器
+- T5Gemma 是 Google T5 + Gemma 的混合架构（文本分支 + 语义分支）
+- 这是 AudioLDM2 的标配文本编码器
+- 相比 SoundGen 的 CLAP/T5 float32 编码器，T5Gemma 提供更丰富的语义信息
+- int8 量化（287MB vs 440MB float32）
+
+6.2.5 推理特性
+- 输出时长：约 1 分钟
+- int8 量化（DiT 1.47GB vs SoundGen DiT 344MB，因为更大架构 + 高质量 DiT）
+- 与 SoundGen 共用推理循环（OiIiI0I0oIio packed-switch 1 路径）
+
+
+6.3 SoundGen HD Long（超长音频版）
+------------------------------------
+
+6.3.1 模型身份
+- 内部 ID：soundgen_hd_long
+- 显示名：SoundGen HD Long
+- 文案：Same high quality as SoundGen HD, but for much longer clips — up to ~3 minutes...
+            Generation is slow (~10-15 minutes per clip); best for long-form pieces
+- HF 仓库：同 SoundGen HD（jegly/audio + jegly/noise）
+- 模型架构：同 SoundGen HD，区别在 DiT 和 VAE 的 latent 长度
+
+6.3.2 完整文件清单
+| 文件                            | 含义                                | 实际大小  |
+|--------------------------------|-------------------------------------|-----------|
+| dit_L2048_int8.tflite          | DiT（L2048 = 2048 长度，int8）       | 1.47GB    |
+| t5gemma_enc_int8.tflite        | 共用 SoundGen HD 的 T5Gemma          | 287MB     |
+| ae_dec_L2048_int8.tflite       | VAE 解码器（2048 长度）              | 446MB     |
+| tokenizer.model                | 共用 SoundGen HD 的词表              | 265KB     |
+
+与 SoundGen HD 对比：只有 DiT 和 VAE 不同，text 编码器和 tokenizer 完全共用。
+
+6.3.3 L256 vs L2048 切换逻辑
+- OiIiIl0 构造器接收 int 参数（0=L256，1=L2048）
+- 实例化时根据用户在 UI 选的是 HD 还是 HD Long 传入 0 或 1
+- 加载对应的 dit_L256_int8.tflite vs dit_L2048_int8.tflite
+- 加载对应的 ae_dec_L256_int8.tflite vs ae_dec_L2048_int8.tflite
+
+6.3.4 推理特性
+- 输出时长：约 10-15 分钟 / 段（2048 长度 latent 对应 ~3 分钟波形，分多段生成）
+- 采样步数：8 步（与 HD 一致）
+- 生成速度：慢（用户文案标注 "Generation is slow ~10-15 minutes per clip"）
+
+
+================================================================================
+第七部分  统一推理后端：Google LiteRT
+================================================================================
+
+7.1 LiteRT 架构
+---------------
+- 包名：com.google.ai.edge.litert.*
+- 核心类：
+  * CompiledModel - 已编译的 LiteRT 模型（封装 native 模型句柄）
+  * CompiledModel$Companion - 工厂方法 create(模型路径, Options, Environment)
+  * CompiledModel$Options - 编译选项（Accelerator 数组）
+  * CompiledModel$GpuOptions - GPU 选项（Precision, BufferStorageType, Priority 等）
+  * TensorBuffer - 输入/输出张量缓冲区
+  * Environment - LiteRT 运行时环境
+  * Accelerator - 加速器枚举（GPU / CPU / NPU）
+  * JniHandle - JNI 句柄基类（提供 close() 方法释放 native 资源）
+
+7.2 GPU 编译选项
+----------------
+所有模型的 GPU 编译都遵循统一配置：
+  GpuOptions(
+    precision = FP32,        // 浮点精度
+    priority = 0x7ff7 (32759),  // 最大优先级
+    // 11 个 Boolean 字段（advanced settings）
+    // 1 个 Integer 字段（priority）
+    // 2 个 String 字段（shader 路径 / cache 路径）
+  )
+  
+  Options(
+    accelerator = [GPU, CPU]  // 优先 GPU，失败回退 CPU
+  )
+
+7.3 三件套调用模式
+------------------
+所有推理都遵循以下三件套模式：
+  1. compiledModel.createInputBuffers(2) - 创建输入缓冲区（2 个 buffer：cond + noise）
+  2. compiledModel.createOutputBuffers(2) - 创建输出缓冲区（2 个 buffer：denoised + log_var）
+  3. compiledModel.run(inputBuffers, outputBuffers) - 执行推理
+  4. 读取 outputBuffers.get(i).readFloat() - 获取结果
+
+7.4 GPU→CPU Fallback 模式
+-------------------------
+- 加载时优先 GPU（Accelerator.GPU）
+- GPU 编译失败时自动重试 CPU（Accelerator.CPU）
+- 日志格式："<model_tag> failed to compile on GPU, retrying on CPU"
+  其中 model_tag 是：
+  * "FluxKleinEngine" - FLUX.2 klein 引擎
+  * "ZImageEngine" - Z-Image 引擎
+  * "SoundGen" - SoundGen 引擎
+  * "SoundGen HD" - SoundGen HD 引擎
+- 完整加载成功的日志：
+  * "SoundGen: all components loaded" - SoundGen 全部 4 个组件加载完成
+  * "SoundGen HD: all components loaded" - SoundGen HD 全部 4 个组件加载完成
+- 失败兜底日志：
+  * "Failed to load FLUX.2 klein (check that all files finished downloading)" - FLUX.2 下载未完成
+
+7.5 原生库依赖（52 个 arm64-v8a .so）
+-------------------------------------
+关键 .so 文件：
+- liblitertlm_jni.so - LiteRT JNI 桥接（核心）
+- libQnnHtpPrepare.so - 高通 NPU（Qualcomm Hexagon Tensor Processor）
+- libggml-vulkan.so - Vulkan GPU 委托
+- libonnxruntime.so - ONNX Runtime（备用推理后端）
+- libstablediffusion.so - Stable Diffusion 原生 C++（23MB，专用 Stable Diffusion 路径）
+- libvulkan.so / libOpenCL.so - Vulkan / OpenCL 系统库
+- libEGL.so / libGLESv3.so - EGL / OpenGL ES 系统库
+
+7.6 Stable Diffusion vs LiteRT 双轨并行
+----------------------------------------
+Box 中存在两套并行的本地生成推理后端：
+1. LiteRT (.tflite) - 用于 FLUX.2 klein / Z-Image / SoundGen 全家
+2. libstablediffusion.so (原生 C++) - 用于 Stable Diffusion 模型（用户文案中提到的 stable 路线）
+
+两者在代码层面完全独立：
+- LiteRT 路径：Java 层通过 CompiledModel API 调用
+- Stable Diffusion 路径：Java 层通过 JNI 调用 libstablediffusion.so
+
+7.7 模型下载流程
+----------------
+1. 用户在 UI 选择要使用的模型（FLUX.2 klein / Z-Image / SoundGen / SoundGen HD / 等）
+2. Box 检查本地缓存目录是否已有对应模型文件
+3. 如无，启动 HuggingFace Hub 下载：
+   - 仓库 URL：https://huggingface.co/litert-community/FLUX.2-klein-4B-LiteRT
+                https://huggingface.co/litert-community/Z-Image-Turbo-LiteRT
+                https://huggingface.co/jegly/audio
+                https://huggingface.co/jegly/noise
+   - 文件 URL：https://huggingface.co/<org>/<repo>/resolve/main/<filename>
+   - 下载策略：流式下载 + 断点续传 + 完整性校验（SHA256）
+4. 下载完成后，Box 将文件重命名为本地命名（如 sg_core.litert / sghd_core.litert）
+5. 引擎类加载本地文件，编译成 LiteRT CompiledModel
+6. GPU 优先，失败回退 CPU
+7. 推理完成后释放资源（close JniHandle）
+
+
+================================================================================
+第八部分  MobileActions 工具集（系统级 API 桥接）
+================================================================================
+
+8.1 模块位置
+------------
+- 包名：com.google.ai.edge.gallery.customtasks.mobileactions
+- 核心类：MobileActionsTools（2594 行 smali）
+
+8.2 完整工具清单
+----------------
+| 工具名               | 功能                                | 系统 API               |
+|---------------------|-------------------------------------|------------------------|
+| turnOnFlashlight    | 打开手电筒                           | CameraManager          |
+| turnOffFlashlight   | 关闭手电筒                           | CameraManager          |
+| createContact       | 创建联系人                           | ContentResolver        |
+| sendSms             | 发送短信                             | SmsManager / Intent    |
+| openUrl             | 打开 URL                             | Intent.ACTION_VIEW     |
+| navigateTo          | 地图导航                             | Intent.ACTION_NAVIGATE |
+| takePhoto           | 拍照                                 | Camera Intent          |
+| recordAudio         | 录音                                 | MediaRecorder          |
+| ...                 | 其他系统级操作                       | ...                    |
+
+8.3 AgentChat 中的使用
+-----------------------
+AgentChat 模块可以将 MobileActions 工具暴露给 AI 模型，实现：
+- 用户："打开手电筒"
+  → AI 理解 → 调用 turnOnFlashlight() → 手电筒亮
+- 用户："给张三发短信说我晚点到"
+  → AI 理解 → 调用 sendSms("张三", "我晚点到") → 短信发送
+- 用户："导航到天安门"
+  → AI 理解 → 调用 navigateTo("天安门") → 打开地图导航
+
+
+================================================================================
+第九部分  AgentChat 模块（AI 对话能力）
+================================================================================
+
+9.1 模块位置
+------------
+- 包名：com.google.ai.edge.gallery.customtasks.agentchat
+
+9.2 功能
+--------
+- 多轮对话（chat history 持久化到 Room 数据库）
+- 函数调用（Function Calling）— 调用 MobileActions 工具
+- 流式响应（Streaming Response）
+- 上下文管理（Context Window 管理）
+
+9.3 与本地模型的关系
+-------------------
+AgentChat 模块可以调用：
+- 云端 LLM（通过 INTERNET 权限）
+- 本地 LLM（如果设备支持）— 通过 LiteRT 加载
+注意：Box v3.3.2 的 AgentChat 主要面向云端 LLM，本地 LLM 能力有限
+
+
+================================================================================
+第十部分  TinyGarden 模块（小游戏实验场）
+================================================================================
+
+10.1 模块位置
+-------------
+- 包名：com.google.ai.edge.gallery.customtasks.tinygarden
+
+10.2 功能
+--------
+- 一个独立的小游戏 / 沙盒实验场
+- 推测：可能是 Google AI Edge Gallery 自带的演示模块，用于展示 LiteRT 在游戏场景的应用
+- 具体玩法需要实际运行 Box 应用才能确认
+
+
+================================================================================
+第十一部分 认证系统与数据库
+================================================================================
+
+11.1 认证系统
+-------------
+- 核心类：LIIIlOi1ooii（混淆名）
+- 触发时机：MainActivity 末尾
+- 认证对话框：
+  * 标题：Authenticate to access your chats
+  * 按钮：Cancel / Box
+- 认证成功后：调用 LI1olil1illO（混淆名）初始化导航
+
+11.2 数据库
+-----------
+- 类型：Room / SQLite
+- 用途：
+  * Chat 历史记录持久化
+  * 用户偏好（主题选择、模型选择等）
+  * 生成历史（图片 / 音频的元数据和文件路径）
+- 关键字段：
+  * custom_theme - SharedPreferences key，存储主题选择
+
+
+================================================================================
+第十二部分 模型与资源清单总览
+================================================================================
+
+12.1 Box 自带的图像 / 音频生成模型
+-----------------------------------
+| 模型                | 类型    | 来源           | 仓库                                              | 下载大小  | 输出      |
+|---------------------|---------|----------------|---------------------------------------------------|-----------|-----------|
+| FLUX.2 klein 4B     | 图像    | Black Forest   | litert-community/FLUX.2-klein-4B-LiteRT          | ~7.4GB    | 256×256   |
+| Z-Image-Turbo 6B    | 图像    | 阿里 Tongyi    | litert-community/Z-Image-Turbo-LiteRT             | ~10.6GB   | 256×256   |
+| SoundGen            | 音频    | jegly          | jegly/audio                                       | ~1.1GB    | ~24s      |
+| SoundGen HD         | 音频    | jegly          | jegly/audio + jegly/noise                         | ~2.1GB    | ~1min     |
+| SoundGen HD Long    | 音频    | jegly          | jegly/audio + jegly/noise                         | 共用 HD   | ~10-15min |
+| Stable Diffusion    | 图像    | Stability AI   | （通过 libstablediffusion.so 原生 C++）            | 视模型    | 512×512   |
+
+12.2 Box 内置辅助资源（assets/）
+---------------------------------
+| 目录                  | 内容                                            | 大小     |
+|-----------------------|-------------------------------------------------|----------|
+| assets/fluxklein/     | FLUX.2 klein 预计算常量                          | 960KB    |
+| assets/zimage/        | Z-Image-Turbo 预计算常量                         | 2.1MB    |
+| assets/other/         | 其他小尺寸辅助文件                                | 视情况    |
+
+12.3 关键混淆类名索引
+---------------------
+| 混淆类名         | 实际功能                                          |
+|-----------------|--------------------------------------------------|
+| OiIiIIOOiO      | SoundGen 主引擎类（3 个 CompiledModel + 推理入口）|
+| OiIiIl0         | SoundGen HD/HD Long 主引擎类（构造器收 int 切换） |
+| OiIiI1ii        | SoundGenEngine（静态 CompiledModel.create 工具）  |
+| OiIiIiiII       | SoundGenHdEngine（HD 版本 CompiledModel.create）  |
+| OiIiI0I0oIio    | SoundGen/HD 共用协程体（packed-switch 0/1）       |
+| llOO00lI        | SentencePiece tokenizer 持有类                    |
+| Il100ioI1I      | FluxKleinEngine 主引擎类                          |
+| Oo1O1iII011     | ZImageEngine 主引擎类                             |
+| OI1iiIoI0OOi    | Z-Image RoPE 计算返回的 Pair 类型                  |
+| O11lli          | UI 主题应用层                                     |
+| Ol1i110i1il     | 设置页                                            |
+| LIIIlOi1ooii    | 认证对话框类                                      |
+| LI1olil1illO    | 认证后的导航初始化类                              |
+
+
+================================================================================
+第十三部分 附录
+================================================================================
+
+13.1 关键浮点常量索引
+---------------------
+| 十六进制          | 十进制      | 用途                              |
+|------------------|------------|----------------------------------|
+| 0x3f800000       | 1.0f       | 归一化最大值 / sigma 起始值        |
+| 0x3f000000       | 0.5f       | 缩放偏置                          |
+| 0x3f4ccccd       | 0.8f       | SoundGen 默认 CFG scale            |
+| 0x3d4ccccd       | 0.05f      | SoundGen 默认强度                  |
+| 0x3f266666       | 0.65f      | 高斯 sigma 计算系数                |
+| 0x41000000       | 8.0f       | 默认 diffusion 步数               |
+| 0x3ca3d70a       | 0.02f      | Z-Image caption 进度阈值 2%       |
+| 0x3da3d70a       | 0.08f      | Z-Image image 进度阈值 8%         |
+| 0x45700000       | 3840.0f    | SoundGen / Z-Image 隐层维度基准   |
+| 0x100            | 256        | mel bins / latent grid            |
+| 0x1000           | 4096       | 中间隐藏维度                      |
+| 0x2000           | 8192       | 中间隐藏维度                      |
+| 0x20             | 32         | patch 维度 / batch                |
+| 0xf00            | 3840       | Z-Image DiT chunk 循环步长         |
+| 0x21             | 33         | Z-Image 隐层维度相关                |
+| 0x7ff7           | 32759      | GpuOptions Priority 最大值         |
+
+13.2 关键字符串索引
+-------------------
+- "FluxKleinEngine" - FLUX.2 klein 引擎日志 tag
+- "ZImageEngine" - Z-Image 引擎日志 tag
+- "SoundGen" - SoundGen 引擎日志 tag
+- "SoundGen HD" - SoundGen HD 引擎日志 tag
+- "FLUX.2 klein" - FLUX.2 klein 显示名
+- "Z-Image-Turbo" - Z-Image-Turbo 显示名
+- "caption" / "image" - Z-Image 进度回调 key
+- "FluxKleinUiState(prompt=" - FLUX.2 klein UI 状态 toString
+- "ZImageUiState(prompt=" - Z-Image UI 状态 toString
+- "SoundGenTokenizer" - SoundGen tokenizer 类名（混淆前）
+- "custom_theme" - 主题 SharedPreferences key
+- "fluxklein/" - FLUX.2 klein assets 子目录名
+- "zimage/" - Z-Image assets 子目录名
+- "qwen_embed_fp16.bin" - FLUX.2 klein Qwen 嵌入文件名
+- "qwen_enc.tflite" - Z-Image Qwen 文本编码器文件名
+- "z_embc.tflite" - Z-Image Embedding C 文件名
+- "z_refc.tflite" - Z-Image Refiner C 文件名
+- "vae_decoder.tflite" - Z-Image VAE 解码器文件名
+- "dit_model.tflite" - SoundGen DiT 文件名
+- "conditioners_float32.tflite" - SoundGen 文本条件编码器文件名
+- "autoencoder_model.tflite" - SoundGen VAE 解码器文件名
+- "spiece.model" - SoundGen SentencePiece 词表文件名
+- "dit_L256_int8.tflite" - SoundGen HD DiT 文件名
+- "t5gemma_enc_int8.tflite" - SoundGen HD T5Gemma 编码器文件名
+- "ae_dec_L256_int8.tflite" - SoundGen HD VAE 解码器文件名
+- "dit_L2048_int8.tflite" - SoundGen HD Long DiT 文件名
+- "ae_dec_L2048_int8.tflite" - SoundGen HD Long VAE 解码器文件名
+- "tokenizer.model" - SoundGen HD/HD Long SentencePiece 词表文件名
+- "noise" - 噪声仓库路径（jegly/noise）
+- "AudioLDM" / "Stable Audio" - 音频模型架构家族
+- "R8-map-id-c1403b15f4e7a24c8470177cd4a1e800710ec88849c48bbc76475bb593161282" - R8 映射 ID
+
+13.3 关键方法签名索引
+---------------------
+| 方法签名                                                                 | 功能                                    |
+|--------------------------------------------------------------------------|----------------------------------------|
+| I0000Il00O(String, float, long, Context, callback, continuation): Object  | SoundGen/HD 推理主入口                  |
+| I00000oIO(File, String, List): ArrayList                                 | FluxKlein/ZImage 模型加载               |
+| I00000oOI(File, String): LOI1iiIoI0OOi                                   | ZImage 初始化                           |
+| I00000oIO(File, [F, [F, int, [F, continuation): [F                       | ZImage 核心 denoise 方法                |
+| I0000O([F): [F                                                           | FluxKlein 单步 denoise                  |
+| I0000oI00(Context, String): [F                                           | 从 assets 读取 .bin 常量                |
+| I0001Ioi1lo([[I): LOI1iiIoI0OOi                                          | RoPE cos/sin 实时计算                   |
+| invokeSuspend(Object): Object                                            | Kotlin 协程状态机入口                   |
+
+13.4 关键包路径索引
+-------------------
+| 包路径                                                  | 用途                                |
+|---------------------------------------------------------|------------------------------------|
+| com.box.gallery                                         | Box 应用壳层                        |
+| com.google.ai.edge.gallery                              | Google AI Edge Gallery 上游         |
+| com.google.ai.edge.gallery.customtasks.agentchat       | 多轮对话模块                        |
+| com.google.ai.edge.gallery.customtasks.mobileactions   | 系统工具模块                        |
+| com.google.ai.edge.gallery.customtasks.tinygarden     | 小游戏实验场                        |
+| com.google.ai.edge.litert                              | Google LiteRT 推理后端              |
+| com.google.ai.edge.litert.CompiledModel                | 已编译模型                          |
+| com.google.ai.edge.litert.CompiledModel$Options        | 编译选项                            |
+| com.google.ai.edge.litert.CompiledModel$GpuOptions     | GPU 选项                            |
+| com.google.ai.edge.litert.CompiledModel$Companion      | 工厂方法                            |
+| com.google.ai.edge.litert.TensorBuffer                 | 张量缓冲区                          |
+| com.google.ai.edge.litert.Environment                  | 运行时环境                          |
+| com.google.ai.edge.litert.Accelerator                  | 加速器枚举                          |
+| com.google.ai.edge.litert.JniHandle                    | JNI 句柄                            |
+
+13.5 工具与流程总结
+-------------------
+本报告基于以下分析流程产出：
+1. apktool decode Box_v3.3.2_Main_Signed_Release.apk → /sdcard/下载管理/Operit/box_decode/
+2. 读取 AndroidManifest.xml → 获取包名 / 权限 / 入口
+3. 读取 GalleryApplication.smali + MainActivity.smali → 应用壳层结构
+4. 读取 MobileActionsTools.smali → 系统工具集
+5. grep_code "flux|z-image|soundgen|musicgen" → 定位模型相关类
+6. 读取 OiIiIIOOiO.smali (SoundGen) + OiIiIl0.smali (SoundGen HD) + OiIiI1ii.smali (SoundGen Engine) → 音频模型架构
+7. grep_code "FluxKleinEngine|ZImageEngine" → 定位图像引擎
+8. 读取 Il100ioI1I.smali (FluxKlein) + Oo1O1iII011.smali (ZImage) → 图像模型架构
+9. 读取 OiIiI0I0oIio.smali (5142 行共用协程) → 推理循环细节
+10. 综合所有信息 → 形成本报告
+
+================================================================================
+第十四部分 HF 在线仓库 URL 与文件清单实际验证结果
+（独立补充章节，不修改原报告前十三部分结论）
+================================================================================
+
+补充时间：2026-08-11
+验证目的：将本报告（基于 Box v3.3.2 APK 反编译产物）中所列的 Hugging Face
+仓库 URL、文件名清单、文件大小与 HF 平台实际状态进行交叉核对。
+验证方法：
+  - HTTP HEAD 探活：curl -sI -L --max-time 20
+  - 文件清单拉取：curl GET https://huggingface.co/api/models/<org>/<repo>/tree/main
+验证范围：本报告第二、七、十二章涉及的全部 HF 仓库 URL 与文件名清单。
+
+本章节仅做事实陈述，不对原报告内容与 HF 实际状态之间的差异作正确性判断，
+差异标注交由后续验证环节处理。
+
+14.1 仓库 URL 可达性
+--------------------
+| 本报告中所列 URL                                | HTTP 状态 |
+|------------------------------------------------|-----------|
+| https://huggingface.co/jegly/audio             | 200       |
+| https://huggingface.co/jegly/noise             | 200       |
+| https://huggingface.co/litert-community/FLUX.2-klein-4B-LiteRT | 200 |
+| https://huggingface.co/litert-community/Z-Image-Turbo-LiteRT   | 200 |
+
+四个 URL 全部返回 200 OK，仓库主页可访问。
+
+14.2 jegly/audio 文件清单与本报告差异
+--------------------------------------
+本报告（第六部分 6.1.2）所列文件与 HF 实际 tree/main 清单逐项对照：
+
+| 本报告列出的文件名                | 报告预期大小 | HF 实际大小 | 实际存在 |
+|--------------------------------|------------|-----------|--------|
+| dit_model.tflite               | 344MB      | 328MB     | 是      |
+| conditioners_float32.tflite    | 440MB      | 419MB     | 是      |
+| autoencoder_model.tflite       | 312MB      | 298MB     | 是      |
+| spiece.model                   | 494KB      | 文件存在（实际约 4MB，含 token 内容）| 是 |
+
+本报告列出的上述 4 个文件名在 HF 仓库中全部真实存在。
+
+HF 实际仓库额外存在但本报告未列出的文件：
+  - audiogen（9MB）
+
+文件大小差异（仅事实记录）：
+  - dit_model.tflite 报告说 344MB，实际 328MB
+  - conditioners_float32.tflite 报告说 440MB，实际 419MB
+  - autoencoder_model.tflite 报告说 312MB，实际 298MB
+  - 报告总下载量估算 1.1GB，实际三个 .tflite 之和约 1.05GB
+
+14.3 jegly/noise 文件清单与本报告差异
+--------------------------------------
+本报告（第六部分 6.2 与 6.3）中关于此仓库的描述与 HF 实际 tree/main 清单对照：
+
+本报告对该仓库用途的描述：
+  "jegly/noise（提供 Gaussian 噪声）"（第二部分 2.2、第六部分 6.0）
+
+HF 实际仓库文件清单：
+  - ae_dec_L2048_int8.tflite（426MB）
+  - ae_dec_L256_int8.tflite（414MB）
+  - dit_L2048_int8.tflite（1400MB）
+  - dit_L256_int8.tflite（1400MB）
+  - special_tokens_map.json
+  - t5gemma_enc_int8.tflite（273MB）
+  - tokenizer.json（32MB）
+  - tokenizer.model（4MB）
+  - tokenizer_config.json
+
+| 本报告列出的文件名                | 报告预期大小 | HF 实际大小 | 实际存在 |
+|--------------------------------|------------|-----------|--------|
+| dit_L256_int8.tflite           | 1.47GB     | 1400MB    | 是      |
+| dit_L2048_int8.tflite          | 1.47GB     | 1400MB    | 是      |
+| t5gemma_enc_int8.tflite        | 287MB      | 273MB     | 是      |
+| ae_dec_L256_int8.tflite        | 446MB      | 414MB     | 是      |
+| ae_dec_L2048_int8.tflite       | 446MB      | 426MB     | 是      |
+| tokenizer.model                | 265KB      | 4MB       | 是      |
+
+本报告列出的上述 6 个文件名在 HF 仓库中全部真实存在。
+
+HF 实际仓库额外存在但本报告未列出的文件：
+  - special_tokens_map.json
+  - tokenizer.json（32MB）
+  - tokenizer_config.json
+
+文件大小差异（仅事实记录）：
+  - t5gemma_enc_int8.tflite 报告说 287MB，实际 273MB
+  - ae_dec_L256_int8.tflite 报告说 446MB，实际 414MB
+  - ae_dec_L2048_int8.tflite 报告说 446MB，实际 426MB
+  - tokenizer.model 报告说 265KB，实际 4MB
+
+14.4 litert-community/FLUX.2-klein-4B-LiteRT 文件清单与本报告差异
+-----------------------------------------------------------------
+本报告（第五部分 5.1.2）所列文件与 HF 实际 tree/main 清单逐项对照：
+
+| 本报告列出的文件名        | 报告预期大小 | HF 实际大小 | 实际存在 |
+|------------------------|------------|-----------|--------|
+| ke_enc0.tflite         | ~700MB     | 869MB     | 是      |
+| ke_enc1.tflite         | ~700MB     | 869MB     | 是      |
+| ke_enc2.tflite         | ~700MB     | 869MB     | 是      |
+| kc_prep.tflite         | ~500MB     | 158MB     | 是      |
+| kc_double0.tflite      | ~750MB     | 704MB     | 是      |
+| kc_double1.tflite      | ~750MB     | 469MB     | 是      |
+| kc_single0.tflite      | ~500MB     | 586MB     | 是      |
+| kc_single1.tflite      | ~500MB     | 586MB     | 是      |
+| kc_single2.tflite      | ~500MB     | 586MB     | 是      |
+| kc_single3.tflite      | ~500MB     | 586MB     | 是      |
+| kc_final.tflite        | ~500MB     | 18MB      | 是      |
+| kv_vae.tflite          | ~700MB     | 47MB      | 是      |
+| tokenizer/qwen_embed_fp16.bin | ~200MB | （tokenizer 目录存在，文件详情待核） | 目录存在 |
+
+本报告列出的上述 13 项（含 tokenizer 子目录）在 HF 仓库中全部真实存在。
+
+HF 实际仓库额外存在但本报告未列出的文件：
+  - kce_double0.tflite（704MB）
+  - kce_double1.tflite（469MB）
+  - kce_final.tflite（18MB）
+  - kce_prep.tflite（158MB）
+  - kce_single0.tflite（586MB）
+  - kce_single1.tflite（586MB）
+  - kce_single2.tflite（586MB）
+  - kce_single3.tflite（586MB）
+  - kv_vae_enc.tflite（33MB）
+  - README.md
+  - pixel8a_edited.png（示例图）
+  - pixel8a_generated.png（示例图）
+
+文件大小差异（仅事实记录）：
+  - ke_enc0/1/2.tflite 报告说约 700MB，实际 869MB
+  - kc_prep.tflite 报告说约 500MB，实际 158MB
+  - kc_double0.tflite 报告说约 750MB，实际 704MB
+  - kc_double1.tflite 报告说约 750MB，实际 469MB
+  - kc_single0-3.tflite 报告说约 500MB，实际全部 586MB
+  - kc_final.tflite 报告说约 500MB，实际 18MB
+  - kv_vae.tflite 报告说约 700MB，实际 47MB
+
+报告所述"FLUX.2 klein 总下载量约 7.4GB"与 HF 仓库实际所有 .tflite 大小
+加总（不含样本图与 README）之间存在差距；按 HF 实际清单加和约为 9.5GB
+（仅核心 .tflite，未含 tokenizer 子目录文件）。
+
+14.5 litert-community/Z-Image-Turbo-LiteRT 文件清单与本报告差异
+----------------------------------------------------------------
+本报告（第五部分 5.2.2）所列文件与 HF 实际 tree/main 清单逐项对照：
+
+| 本报告列出的文件名        | 报告预期大小 | HF 实际大小 / 文件名  | 实际存在 |
+|------------------------|------------|--------------------|--------|
+| qwen_enc.tflite        | ~3GB       | 3383MB             | 是      |
+| z_embc.tflite          | ~1GB       | 9MB                | 是      |
+| z_refc.tflite          | ~5GB       | 338MB              | 是      |
+| vae_decoder.tflite     | ~800MB     | 文件名实际为 zvae.tflite（47MB） | 文件名不一致 |
+
+本报告列出的"qwen_enc.tflite、z_embc.tflite、z_refc.tflite" 3 个文件名
+在 HF 仓库中真实存在。
+
+本报告列出的"vae_decoder.tflite"在 HF 仓库中**未以该文件名存在**；仓库中
+对应的 VAE 解码器文件名为"zvae.tflite"。
+
+HF 实际仓库额外存在但本报告未列出的文件：
+  - z_embx.tflite
+  - z_refx.tflite（346MB）
+  - zc_final.tflite（1MB）
+  - zc_main0.tflite（866MB）
+  - zc_main1.tflite（866MB）
+  - zc_main2.tflite（866MB）
+  - zc_main3.tflite（866MB）
+  - zc_main4.tflite（866MB）
+  - zc_main5.tflite（866MB）
+  - zvae.tflite（47MB）
+  - README.md
+  - pixel8a_generated.png（示例图）
+
+文件大小差异（仅事实记录）：
+  - qwen_enc.tflite 报告说约 3GB，实际 3.38GB
+  - z_embc.tflite 报告说约 1GB，实际 9MB
+  - z_refc.tflite 报告说约 5GB，实际 338MB
+  - 报告所述"Z-Image-Turbo 总下载量约 10.6GB"与 HF 实际清单加和（含
+    zc_main0-5 共约 5.2GB、qwen_enc 3.38GB、z_refc 338MB、z_refx 346MB、
+    zvae 47MB 等）之间存在差距；按 HF 实际清单加和约 9.2GB
+    （不含样本图与 README）。
+
+14.6 差异汇总（仅事实条目，不附判定）
+--------------------------------------
+以下条目按"差异类型"罗列本报告与 HF 实际状态之间可观察到的不一致点，
+正确性判定不在本章节范围内，留待后续验证：
+
+差异类型 A：仓库用途描述与实际文件内容不一致
+  - jegly/noise：本报告描述为"提供 Gaussian 噪声的辅助仓库"；
+    HF 实际文件清单显示该仓库主要包含 SoundGen HD / HD Long
+    的 DiT、VAE、T5Gemma 编码器与 tokenizer 文件。
+
+差异类型 B：文件大小估算与 HF 实际大小不一致（量级或数值差异）
+  - FLUX.2-klein：kc_prep、kc_double1、kc_final、kv_vae 等多个文件
+    报告估算值与 HF 实际值差距显著
+  - Z-Image-Turbo：z_embc 报告说约 1GB 实际 9MB；z_refc 报告说约
+    5GB 实际 338MB；vae_decoder 文件名不一致
+
+差异类型 C：文件名清单覆盖度不一致
+  - FLUX.2-klein：HF 仓库额外存在的 kce_double0/1、kce_final、
+    kce_prep、kce_single0/1/2/3、kv_vae_enc、README、示例图
+    等文件未出现在本报告清单中
+  - Z-Image-Turbo：HF 仓库额外存在的 zc_main0/1/2/3/4/5、
+    zc_final、z_refx、z_embx、zvae、README、示例图等文件未
+    出现在本报告清单中
+  - jegly/audio：HF 仓库额外存在的 audiogen 文件未出现在本报告清单中
+  - jegly/noise：HF 仓库额外存在的 tokenizer.json、special_tokens_map.json、
+    tokenizer_config.json 未出现在本报告清单中
+
+差异类型 D：总下载量数值不一致
+  - FLUX.2-klein 报告说 7.4GB，HF 实际清单加和约 9.5GB
+  - Z-Image-Turbo 报告说 10.6GB，HF 实际清单加和约 9.2GB
+
+差异类型 E：文件名不一致
+  - Z-Image-Turbo 的 VAE 解码器：本报告写作"vae_decoder.tflite"，
+    HF 仓库实际文件名为"zvae.tflite"
+
+14.7 一致性条目（仅事实记录）
+------------------------------
+以下条目在本报告与 HF 实际状态之间未观察到差异：
+
+- 四个 HF 仓库 URL 全部可访问（HTTP 200）
+- jegly/audio 的 4 个核心文件名（dit_model、conditioners_float32、
+  autoencoder_model、spiece.model）全部真实存在
+- jegly/noise 的 6 个核心文件名（dit_L256_int8、dit_L2048_int8、
+  t5gemma_enc_int8、ae_dec_L256_int8、ae_dec_L2048_int8、
+  tokenizer.model）全部真实存在
+- FLUX.2-klein 的 13 个报告所列文件名全部真实存在
+- Z-Image-Turbo 报告所列的 qwen_enc.tflite、z_embc.tflite、
+  z_refc.tflite 三个文件名真实存在
+
+================================================================================
+第十五部分 Box 仓库最新整体状况（2026-08-11 线上核查）
+（独立补充章节，仅作事实整理与信息归纳，不含判断与规划建议）
+================================================================================
+
+补充时间：2026-08-11
+数据来源：GitHub API（repo/releases/commits/issues/pulls/tree/raw）、Hugging Face
+API、Box README.md 全文本（767 行）、相调分析报告。
+
+本节仅记录 Box 仓库截至本次核查时可从线上与相调产物中观察到的事实，
+不做结论性判断，不做项目规划，不做技术路线建议。
+
+15.1 仓库基本元数据（2026-08-11 实测）
+--------------------------------------
+- full_name：jegly/Box
+- description：The most advanced, fully offline client-side AI suite on Android today.
+- 语言分布：Kotlin（1567034 行）、HTML（202856）、C++（27567）、JavaScript
+  （9156）、CMake（6386）、CSS（815）
+- stars：742；forks：43；open_issues：1；watchers：0
+- default_branch：main；size：90004 KB
+- created_at：2026-04-17T10:42:52Z；updated_at：2026-08-11T05:10:36Z；
+  pushed_at：2026-08-10T12:29:23Z
+- archived：False；disabled：False
+- license 文件实际内容：Apache License 2.0 全文（含 ASCII art 页眉）
+- GitHub API 返回的 license 字段：NOASSERTION（spdx_id）
+- homepage：https://jegly.xyz
+- topics：android、android-ai-app、artificial-intelligence、box、gguf、linux、
+  linux-ai、litert、litert-lm、litertlm、llamacpp、local-ai、local-llm、
+  mcp-server、music-generation、ondevice-ai、privacy-first-ai、rag、visionai
+- has_issues：True；has_projects：True；has_wiki：True；has_pages：False；
+  has_downloads：False
+- parent / source：均无（GitHub 未将其登记为某仓库的 fork 关系）
+
+15.2 release 版本序列与构建
+------------------------------
+当前最新 release：v3.3.3（2026-08-10T12:20:31Z，prerelease=False）：
+  - Box_v3.3.3_Main_Signed_Release.apk
+    SHA-256: bde09a6e6a8e7f216593fdc23ab8334a70202282d913013ee48ceef3b6d9e93b
+    downloads=266，约 510MB
+  - Box_v3.3.3_custom-rom-support_Signed_Release.apk
+    SHA-256: 8c76b921c6d61c79bdab38651705e41d208526407e642867a14285d4a012745a
+    downloads=161，约 510MB
+
+版本时间线（新→旧）：v3.3.3（2026-08-10）、v3.3.2（2026-07-20）、
+v.3.3.1（2026-07-17）、Box-Linux-v0.4.0（2026-07-17）、v3.3.0（2026-07-12）、
+v3.2.0（2026-06-19）、v3.1.0（2026-06-17）、v3.0.0（2026-06-15），此前还有
+v1.0.x 与 v2.x 若干历史版本。
+
+签署证书：（README 公布，两种变体同键）SHA-256:
+8346b1a70d09ff5c9f7d7febc874cf694b6e267032a4eb38e261d538bce7b09c
+
+README 宣称总下载量突破 20K。
+
+15.3 v3.3.3 完整变更日志（release body 整理）
+-----------------------------------------------
+版本标题：Faster on-device AI, a new image generator, 15 new models, and Box
+in French and Portuguese.
+
+15.3.1 Bonsai Image 4B（新的推荐图像生成器）
+- 定义：FLUX.2 klein 的 ternary-weight（三值权重）构建
+- 输出：512×512（是 FLUX.2 klein tile 的两倍）
+- 下载：约 4.3GB（小于 FLUX.2 klein 的 7.4GB 和 Z-Image 的 10.6GB）
+- 推理：4 步、全程离线、在 CPU 上运行（非 GPU）
+- 原因：其 2.27GB 的 diffusion graph 超出 GPU delegate 容量
+- 需求：约 8GB RAM，每张图约几分钟
+- 建议：配合 Upscale → EDSR ×4 上采样到 2048×2048
+- release 原话："FLUX.2 klein、Z-Image 和 Bonsai 生成质量均优于内置的
+  Stable Diffusion 模型"
+
+15.3.2 引擎升级
+- llama.cpp、whisper.cpp、stable-diffusion.cpp、ggml 全部更新至当前构建
+- GGUF 对话与 Stable Diffusion 图像生成在相同硬件上明显提速
+- Whisper 转写和 Gemma/LiteRT 对话行为保持不变
+
+15.3.3 界面语言
+- 新增 Settings → Language：System / English / Français / Português /
+  Português (Brasil)
+- 基于 Android 每应用语言支持；覆盖不完整，未翻译部分保留英文
+- 不含简体中文
+
+15.3.4 15 个新模型
+- 视觉（Ask Image）：SmolVLM2-2.2B（1.5GB）、SmolVLM2-500M（0.36GB）、
+  InternVL3.5-2B（1.6GB）、InternVL3-2B（1.4GB，擅长读图内文字）
+- 对话/推理：Qwen3.5-0.8B（hybrid attention）、Phi-4-mini-reasoning、
+  Polaris-4B Preview、Nanbeige 4.2 3B、SmolLM3-3B、Jan-nano、
+  Ministral 3 3B（Instruct 与 Reasoning 两种）、OLMo-2-1B Instruct
+  （权重/数据/训练代码全开源）、Granite-4.0-H-1B（IBM，记忆固定大小）、
+  LFM2.5-1.2B-JP（日语调优）
+- Gemma 4 12B 下载体积减小 560MB，能力不变
+
+15.3.5 修复
+- de-Googled Android（GrapheneOS/AOSP/crDroid/LineageOS）：此前 AI Chat 无论选
+  哪个 accelerator 都静默回退 CPU，Tensor G5 模型报 "Input tensor not found"
+  无法加载；此版修复为按预期使用 GPU/TPU
+- 大下载（Gemma 26B、Z-Image）中断后自动重试并断点续传
+
+15.3.6 底层
+- AGP 9.3.1、Gradle 9.6.1、Kotlin 2.3.10、28 个库更新
+- release 构建剥离调试日志、不打包原生调试符号
+- LiteRT 与 LiteRT-LM 有意保持在当前版本
+
+15.3.7 已知限制
+- Bonsai 跑 CPU（非 GPU），每图几分钟，约 8GB RAM
+- 应用翻译不完整
+- 语音输入需要 TTS 引擎（stock Android 默认有；de-Googled ROM 需去设置里选）
+
+================================================================================
+第十六部分 仓库历史脉络与协作状态
+================================================================================
+（仅事实整理）
+
+16.1 完整 commit 历史观察（近 50 条集中特征）
+-----------------------------------------------
+- 全部 50 条 commit 作者均为 Jesse Li-Yates（jegly），无任何其他贡献者
+- 大量 commit 主题为 "Update README.md"（超过 30 次），其余为配置文件修改
+- 关键改动点（按时间）：
+  * 2026-08-09 集中删除协作文档一批：.github/DISCUSSION_TEMPLATE、
+    .github/ISSUE_TEMPLATE、Bug_Reporting_Guide.md、CONTRIBUTING.md、
+    DEVELOPMENT.md、Function_Calling_Guide.md、images/box-crt-amber、model_allowlists/1_0_5.json
+  * 2026-08-09 同时更新 build.gradle.kts、gradle.properties、.gitignore、
+    ios_1_0_0.json
+  * 2026-08-10 v3.3.3 发布前后三次 "Update README.md"
+- 近 30 天按日 commit 数：2026-07-12（×4）、07-17（×2）、07-20（×2）、
+  07-28（×2）、08-09（×16）、08-10（×3）
+
+16.2 贡献者与协作
+-------------------
+- contributors API 仅返回 1 个贡献者：jegly（contributions=281）
+- pulls 全列表：0 个 PR（从未合并过任何外部代码贡献）
+- open_issues：仅 1 个公开活动贴：#38
+  "[FEATURE MEGA THREAD - REQUESTS SHOULD GO HERE]"（作者 Jakarrrg，
+  2026-05-08 创建，137 条评论，最后更新 2026-08-10T14:23）
+- 说明：开发者把所有散落功能请求引导到 #38 聚合贴，维持 open_issues=1
+
+16.3 全部 Issue 清单（截至 2026-08-11，总数约 130+）
+-----------------------------------------------------
+按更新时间倒序的近期条目（截至本次核查）：
+
+开放（仅 1 个）：#38。
+
+已关闭（开发者近期关闭的与您相关的）：
+- #136 Gemma 4 26B (A4B) emits incompatible tool calls in Agent skills
+  （提交者 zhangzheyuanviolin-ship-it，closed at 2026-08-10T04:15:30Z，
+  state_reason=completed，无评论）
+- #137 Publish reproducible source integration for LiteRT image and...
+  （提交者 zhangzheyuanviolin-ship-it，closed 2026-08-10T04:15:14Z，completed，
+  无评论）
+- #138 SoundGen HD duration sliders are capped below advertised limits
+  （提交者 zhangzheyuanviolin-ship-it，closed 2026-08-10T04:15:38Z，completed，
+  无评论）
+- #139 Add Simplified Chinese localization for the application UI
+  （提交者 zhangzheyuanviolin-ship-it，closed 2026-08-10T04:15:19Z，completed，
+  无评论）
+- #135 Qwen3.6-35B-A3B-UD-Q3_K_XL.gguf（closed 2026-08-10T04:15:45Z，completed）
+- #134 GGUF on GPU still crashes on 3.3.2（closed 2026-08-09T12:09:57Z）
+- #133 The specific model behind the AI music generator（closed
+  2026-08-09T06:56:00Z，completed，零评论——未回答 SoundGen 底层模型）
+
+更早的已关闭 Issue（示例）：#130 Gemma 4 E2B Tensor G5 load fail（custom ROM）、
+#131 界面翻译请求、#129 Gemini Nano 检测、#112 GPU/TPU 推理故障、#128 ZTE 截图、
+#126 GGUF GPU 崩溃、#127 mmproject 加到 GGUF、#125 Adreno A650 GGUF 崩溃、
+#124 Gemma 4 图载入、#120/#123 模型下载 100% 失败、#122 FLUX 2 Klein 无法下载、
+#118 zimage 崩溃、#117 双语言翻译器请求、#116 Gemma 4 Tensor G5 上下文、
+#119 ggml_vk_create_buffer SIGSEGV、#121 GGUF Vulkan SIGSEGV、#111 旋转卸载、
+#115 qwen-image-edit 风格编辑请求、#113 Android 13 支持、#106 多语言翻译请求、
+#108 krea2/ideogram 支持请求、#101 源码不匹配信任请求、#97 agent 不能用、
+#92 添加 projector 导入、#91 NPU 不工作、#88/#82/#80/#73/#59 NPU 崩溃系列、
+#56 可否从源码构建 Android 14、#54/#53 Whisper/TTS 问题、#51 可否导入 SDXL、
+#46 Audio Scribe OOM、#33 隔离终端环境请求、#32 设备音频生成请求、
+#31 投机解码请求、#7 本地扩散图像崩溃、#3 加强 fork 信息
+
+16.4 关键 Issue 详情
+----------------------
+Issue #38（唯一开放）
+- 作者 Jakarrrg，2026-05-08 创建，137 条评论
+- 内容核心：请求加入"全局内存（global memory）"，让不同工具（音频转写、
+  Agent 技能等）的输出可上传到全局内存，供聊天工具引用
+- 引用了其他开源 LLM 应用 LLM-Hub（timmyy123）作为参考
+
+Issue #133（SoundGen 底层模型问题，2026-08-09 关闭）
+- 作者 Omar-afk801
+- 正文："我想知道 SoundGen、SoundGen HD、SoundGen HD Long 的具体底层模型是什么"
+- 关闭状态：completed，无任何评论，未回答
+
+Issue #134（GGUF 在 3.3.2 上仍崩溃）
+- 作者 Nakimor
+- 正文：报告 3.3.2 上仍崩溃，签名相同（null pointer, pc 0x0，
+  ggml_vk_create_buffer → alloc_tensor_range → load_tensors），
+  认为 3.3.2 是真正的新构建（libggml-vulkan.so BuildId 不同，非缓存问题），
+  表示"追了这么多轮（nGpuLayers 99/24/12/8、mmap on/off、q8 KV cache on/off、
+  三次修复）仍无法解决，我先停止"
+
+16.5 官方 README 对项目定位的陈述（原文事实）
+----------------------------------------------
+- README 声明：Box 是 "The most advanced, fully offline client-side AI suite on
+  Android today."
+- README 徽章：Fork Google AI Edge、UpstreamVersion 1.0.15、
+  License Apache 2.0、Hybrid Engine LiteRT + llama.cpp、
+  llama.cpp、stable-diffusion.cpp、whisper.cpp、LiteRT NPU、
+  GGUF Import、Snapdragon NPU 8Gen2/3/Elite、Google Tensor G5 TPU、
+  MediaTek NPU、Gemini Nano、RAG、MCP Servers、Vision、Document Analysis、
+  Super-Resolution、Voice Mode、SenseVoice、Supertonic、SQLCipher、Biometric、
+  Hard Offline、Music Generation、Box Assist、Image Generation
+  (Bonsai+FLUX.2 klein+Z-Image)、App Language (EN·FR·PT·PT-BR)、Vulkan
+- 声明总下载量 20K+；用户可通过 Obtainium 安装；支持 main 与 custom-rom-support
+  两种变体
+- 首次发布前另有相关项目 OfflineLLM（jegly/OfflineLLM）——隐私优先的纯
+  llama.cpp 后端 Android 聊天应用
+
+16.6 官方 README "What Box adds on top of upstream"（对上游 Gallery 的增量）
+------------------------------------------------------------------------------
+官方 README 列出 Box 在 Google AI Edge Gallery 之上新增的功能（逐条记录）：
+- 推理引擎：llama.cpp（GGUF，Vulkan GPU offload）、stable-diffusion.cpp、
+  whisper.cpp，与 LiteRT 并列
+- 模型导入：可导入任意本地 GGUF
+- NPU/TPU：所有 Snapdragon/Tensor/MediaTek 变体打包进一个 APK（上游按芯片发版）
+- Box Assist：视障用户的拍照语音辅助（Live 描述/Reading 朗读/Describe 场景，
+  离线）
+- Voice mode / Vision mode：Free talk（连续免提）+ Vision talk（实时摄像头+语音）
+- 图像生成：SD GGUF + Bonsai/FLUX.2 klein/Z-Image（LiteRT）
+- 图像识别：Identify（MobileNet V2/V3 Large、PlantNet 1081 种、DM-Count 人群计数）
+- Erase（inpainting）：画面涂抹 MI-GAN 移除
+- Music & sound generation：Sound 标签页，文本生成音乐/音效，最长约 3 分钟
+- 图像放大：XLSR / Real-ESRGAN / EDSR ×4
+- Speech-to-text：Whisper + SenseVoice（多语，含中文，约比 Whisper 快 5 倍）
+- Text-to-speech：Supertonic 多语 TTS + Piper / Kokoro
+- Document analysis：聊天里附加 .txt/.md/.csv/.kt 等
+- Document Q&A：RAG 管线，PDF 导入 + MiniLM 嵌入 + 出处引用
+- Gemini Nano hub：6 个 on-device ML Kit 功能（Pixel 9+/10 及部分旗舰）
+- Face Recognition：设备端加密人脸识别（多样本录入、face-mesh 叠加、
+  SQLCipher 加密存储、离线）
+- Background Removal：ML Kit Subject Segmentation，去背景输出 PNG
+- Chat history：SQLCipher 加密 Room 数据库，可跨会话恢复
+- Security：生物识别锁、hard offline mode、提示消毒、审计日志、tap-jacking 防护、
+  无障碍数据敏感性控制、截图防护（FLAG_SECURE）
+- Themes：Catppuccin（14 强调色）、Dracula（7 色）、Light、Material You
+- Agent（skills + MCP）：20 个内置技能（上游 9 个）+ MCP 远程服务器连接，
+  每次调用有权限弹窗
+- 数学渲染：LaTeX 渲染为 Unicode（含表格内）
+- App shortcuts：长按图标直达 AI Chat / Box Assist
+- In-app updates：Settings 检查更新
+
+16.7 官方 README Core Features 逐项（Android 侧）
+---------------------------------------------------
+- Local Chat：多轮对话，支持任意 GGUF 导入。
+- Box Assist：4 种模式（Live 朗读障碍物/Reading 朗读邮件标签菜单/Describe 场景
+  随想随说/voice questions 双击语音提问）；持续自动对焦、暗处自动闪光灯、
+  Reading 模糊检测、实体音量键、hold-to-repeat、TalkBack 共存、屏幕永不休眠、
+  桌面长按直达；完全离线。
+- Local Diffusion：Stable Diffusion GGUF，可导入与图像生成。
+- Image Generation：Bonsai / FLUX.2 klein / Z-Image Turbo（LiteRT diffusion）。
+- Music & Sound Generation：Sound 标签页，文本到音乐/音效，完全离线，短片/高清/
+  长约 3 分钟三档。
+- Image Upscaling：XLSR / Real-ESRGAN / EDSR ×4，模型内置、离线。
+- Voice Input：语音输入。
+- Text-to-Speech：多语 TTS。
+- Free Talk：实时免提语音对话（边说边生成，逐句回读）。
+- Vision Talk：实时摄像头画面 + 语音 AI（问答关于所看到的内容）。
+- Vision AI：图像识别。
+- App Language：System / EN / FR / PT / PT-BR。
+- Biometric App Lock：生物识别锁，重新进入时重新上锁。
+- Encrypted Chat History：SQLCipher 加密聊天记录。
+- NPU/TPU 加速：硬件支持列表
+  - Snapdragon 8 Gen 2（SM8550, Hexagon V73）
+  - Snapdragon 8 Gen 3（SM8650, Hexagon V75）
+  - Snapdragon 8 Elite（SM8750, Hexagon V79）
+  - Snapdragon next-gen（SM8850, Hexagon V81）
+  - Google Tensor G5
+  - MediaTek Dimensity（MT6989, MT6991, MT6993）
+  - 具体到 SoC 的 NPU 模型包括：Gemma 4 E2B / Gemma 3 1B on Tensor G5；
+    Gemma 3 1B & Gemma 3 270M on Snapdragon & Dimensity；Gemma 3n E2B /
+    Qwen3 0.6B on MediaTek。3n NPU 加速目前仅 MediaTek。
+- GGUF Model Import：本地导入，选择 accelerator（CPU / GPU via OpenCL/Vulkan /
+  NPU via QNN delegate）。
+- Hard Offline Mode：设置里打开后完全断网，所有下载抛异常，无任何网络调用。
+
+16.8 官方 README Security Architecture 逐项
+-----------------------------------------------
+- Database encryption：SQLCipher via androidx.room，AES-256 at rest
+- Biometric gate：BiometricPrompt，每个前台重新提示
+- Offline mode：OfflineMode 单例，阻止 DownloadWorker 与网络调用
+- Prompt sanitisation：SecurityUtils.sanitizePrompt() 清除控制字符
+- Tap jacking protection：filterTouchesWhenObscured
+- Accessibility data sensitivity：ViewCompat.setAccessibilityDataSensitive()
+- Screenshot protection：FLAG_SECURE
+- Audit log：SecurityAuditLog 本地追加日志
+
+16.9 官方 README Technology Stack 逐项
+-----------------------------------------
+- Kotlin + Jetpack Compose（UI）
+- Hilt（依赖注入）
+- Room + SQLCipher（加密持久化）
+- LiteRT-LM（LLM 推理：GPU + NPU/TPU）
+- LiteRT CompiledModel（内置 .tflite 视觉模型、超分、Identify/PlantNet/DM-Count、
+  MI-GAN erase、Box Assist Live，以及 Bonsai / FLUX.2 klein / Z-Image diffusion）
+- Qualcomm QNN / QAIRT 2.47（Hexagon NPU 运行时，V69–V81，打包）
+- LiteRT NPU dispatch（自动选择 Qualcomm / Google Tensor / MediaTek）
+- llama.cpp（GGUF，git 子模块）
+- stable-diffusion.cpp（GGUF 图像，git 子模块）
+- whisper.cpp（STT，git 子模块）
+- Sherpa-ONNX（k2-fsa）（SenseVoice STT 与 Supertonic / Piper / Kokoro TTS）
+
+16.10 新发现：Box for Linux 桌面版（jegly/B0x 仓库，闭源）
+--------------------------------------------------------------
+- Box README 末尾新增 "Box for Linux" 章节，链接到 B0x 仓库
+  （github.com/jegly/B0x，创建于 2026-05-31T06:37:25Z，0 stars，Apache? 许可证
+  字段为 NONE）
+- 官方明确声明：
+  * Box for Linux（桌面版）是"独立应用，从零编写，完全独立的代码库"，
+    不是 Android 版的移植或 fork
+  * 两者共用名字与设计理念，功能类似，但相互独立
+  * Android 版开源（Apache-2.0）
+  * **桌面版闭源发布**：.deb 内是编译二进制，源码不公开，
+    "© Jegly. All rights reserved."
+- 桌面版特征（README）：GTK4/libadwaita，原生启动
+  Python 3.14；LiteRT-LM 运行时 + 捆绑 llama.cpp；Box Code 本地编码 agent
+  （glob/grep/read、exact-match patch、kernel sandbox shell、Ask/Auto 权限）；
+  Image Studio（Z-Image+FLUX.2-klein chunked tflite + SD.cpp、img2img、inpainting、
+  hires fix、LoRA、step caching、EDSR upscale）；Tools/Agent Mode（web search、
+  工作区文件读写、grep）；Local File/Log Audit；Knowledge Base RAG + Notebooks；
+  本地多轮对话（Markdown/LaTeX/代码高亮/附件）；Voice/Vision/Memory；52 主题
+  （Catppuccin/Dracula/44 Ptyxis palette/Glass/Liquid Glass）；安全（内核沙箱
+  Landlock/systemd、App Lock Argon2id、HTTPS-only、无遥测）
+- 桌面版安装需 Ubuntu amd64 + GTK4/libadwaita，3-4GB 存储放聊天模型，
+  5-10GB 更多放图像包
+- B0x 仓库目录仅两项：README.md 与 images/，无源码（证实闭源）
+- 映射到 Android 侧的 Box Code/Linux 功能：目前 Android README 未提及相应功能
+
+16.11 模型白名单历史演进
+---------------------------
+model_allowlists/ 目录存在以下版本快照：
+  1_0_4.json、1_0_6.json、1_0_7.json、1_0_8.json、1_0_9.json、
+  1_0_10.json、1_0_11.json、1_0_12.json、ios_1_0_0.json、README.md
+
+各历史版本模型数量（经 API 抽查）：
+  v1.0.4：3 个（Gemma-3n-E2B-it、Gemma-3n-E4B-it、Gemma3-1B-IT，均为 LiteRT-LM）
+  v1.0.6：3 个
+  v1.0.7：3 个
+  v1.0.8：6 个（新增 Qwen2.5-1.5B-Instruct、Phi-4-mini-instruct、
+    DeepSeek-R1-Distill-Qwen-1.5B）
+  v1.0.9：7 个
+  v1.0.10：7 个
+  v1.0.11：9 个
+  v1.0.12：9 个
+  根目录 model_allowlist.json：4 个（Gemma-3n-E2B-it-int4、Gemma-3n-E4B-it-int4、
+    Gemma3-1B-IT q4、Qwen2.5-1.5B-Instruct q8）
+
+v1.0.12 白名单 9 个模型的完整字段（示例，全部为 LiteRT-LM 格式 .litertlm）：
+  - Gemma-4-E2B-it：modelId=litert-community/gemma-4-E2B-it-litert-lm，
+    size=2.58GB，minDeviceMemory=8GB，supportImage/Audio/Thinking，默认上下文
+    32000，taskTypes=[llm_chat,llm_prompt_lab,llm_agent_chat,llm_ask_image,
+    llm_ask_audio...]
+  - Gemma-4-E4B-it：modelId=litert-community/gemma-4-E4B-it-litert-lm，
+    size=3.65GB，minDeviceMemory=12GB，多模态
+  - Gemma-3n-E2B-it：modelId=google/gemma-3n-E2B-it-litert-lm，
+    size=3.66GB，min 8GB，多模态
+  - Gemma-3n-E4B-it：modelId=google/gemma-3n-E4B-it-litert-lm，
+    size=4.92GB，min 12GB，多模态
+  - Gemma3-1B-IT：modelId=litert-community/Gemma3-1B-IT，size=584MB，min 6GB
+  - Qwen2.5-1.5B-Instruct：size=1.6GB，min 6GB
+  - DeepSeek-R1-Distill-Qwen-1.5B：size=1.83GB，min 6GB
+  - TinyGarden-270M：litert-community/functiongemma-270m-ft-tiny-garden，
+    size=289MB，task llm_tiny_garden
+  - MobileActions-270M：jegly/mobile_actions_q8_ekv1024.litertlm，size=289MB，
+    task llm_mobile_actions（作者自己训练的 Function Gemma 270M）
+
+16.12 .gitmodules（git 子模块清单）
+------------------------------------
+  [submodule llama.cpp] url=https://github.com/ggerganov/llama.cpp
+  [submodule stable-diffusion.cpp] url=https://github.com/leejet/stable-diffusion.cpp
+  [submodule whisper.cpp] url=https://github.com/ggerganov/whisper.cpp
+
+================================================================================
+第十七部分 本地智能体广场 / 智能实验室 背景信息（对照项目概况）
+================================================================================
+（仅信息整理，不做对照结论与方案）
+
+17.1 本次核对的两个目标仓库元数据
+----------------------------------
+local-agent-plaza（本地智能体广场）：
+  - description：Local Agent Plaza — A fully on-device Android AI Agent app with
+    chat, image understanding, vision narration, and extensible tool-use
+    capabilities.
+  - language：Kotlin；stars：0；forks：0；open_issues：0；size：96805 KB
+  - default_branch：main；created 2026-04-06；updated 2026-07-25
+  - license：Apache-2.0
+  - 稳定线：v1.0.14-plaza.5（2026-07-25）；同主线曾发布 plaza.1~.5 若干版 +
+    mcp-* 系列实验版（24 个 release 总记录）
+  - APK 文件：local-agent-plaza-1.0.14-plaza.5.apk（约 222MB，含 sha256 校验）
+  - 实验分支后缀：.mcp（包名 com.localagent.plaza.mcp，可并行安装）
+  - 官方 README 定位：端侧 AI 能力集合，非单一聊天应用
+
+intelligence-lab-android（智能实验室）：
+  - description：Intelligence Lab mobile GGUF inference app, derived from
+    ToolNeuron with Android accessibility, Chinese localization, model-store,
+    tool-calling, VLM, and 30B-class MoE stability work.
+  - language：Kotlin；stars：1；forks：0；open_issues：3；size：70239 KB
+  - default_branch：main；created 2026-03-17；updated 2026-08-04
+  - license：Apache-2.0
+  - 最新 release：v2.5.6-vlm-image-fast（2026-08-03），APK 约 134MB
+  - 稳定移动目标：Redmi K70 Pro，24GB RAM，Android/MIUI
+
+17.2 local-agent-plaza release 序列（24 个，按时间排序）
+---------------------------------------------------------
+v1.0.14-plaza.5（2026-07-25）→ v1.0.14-mcp-xlsx-structure / rowfacts /
+  llm-table / workspace-read / weather-tts / tool-audit-download /
+  context-budget-settings / videoqa / media-docs 等 mcp-* 实验版 → v1.0.14-plaza.4
+  → plaza.3 → plaza.2 → mcp-hotfix.1/.2 → plaza.1（2026-07-13）→
+  v0.0.7-mcp-qwen-compat-tools、v0.0.6-mcp-litertlm-0131-models、
+  v0.0.5-mcp-presets-runtime-fixes、v0.0.4-mcp-integration、
+  v0.0.3-mcp-smoketest（prerelease）、v1.0.0-plaza.visual.1、v1.0.0-plaza.1。
+
+17.3 官方 README 记录的能力清单（供对照，原文要点）
+----------------------------------------------------
+- 本地 AI 对话与 Prompt Lab：46 个文本模型
+- 本地智能体：41 个模型，AUTO / NATIVE / COMPAT 三档工具调用
+- 技能系统：21 个内置技能（calculate-hash、create-calendar-event、exa-search、
+  file-workspace、interactive-map、kitchen-adventure、langsearch-search、
+  long-text-writer、mood-tracker、qr-code、query-wikipedia、send-email、
+  tavily-search、text-spinner、weather-query、edge-tts、agnes-omni、
+  minimax-omni、media-toolbox、web-page-extract、anysearch-search）
+- MCP：远程 MCP Server（默认预设 DeepWiki、Microsoft Learn、Context7、
+  GitMCP: Google AI Edge Gallery）
+- 图片问答：8 个视觉语言模型
+- 音频问答与转写：5 个音频理解模型
+- 视频问答：相册/文件选 MP4，完整视频或关键帧抽帧，交本地 VLM 分析
+- 本地视觉创作：32 个图像生成模型（SD1.5/SDXL/QNN NPU/MNN CPU/
+  stable-diffusion.cpp）
+- 实时视觉旁白：相机抓帧 + 本地 VLM + TTS 播报 + 历史导出（视障场景）
+- AI 键盘：系统输入法，离线语音输入、本地模型流水线、日志审计、文本补全
+- 上游 Gallery 模块：Tiny Garden、Mobile Actions、Benchmark、模型管理等
+
+================================================================================
+                                  报告结束
+================================================================================
