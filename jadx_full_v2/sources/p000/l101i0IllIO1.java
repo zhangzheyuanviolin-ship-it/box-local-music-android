@@ -1,0 +1,65 @@
+            package p000;
+
+            import java.util.concurrent.Callable;
+            import java.util.concurrent.ExecutorService;
+            import java.util.concurrent.Executors;
+            import java.util.concurrent.ForkJoinPool;
+            import java.util.concurrent.ScheduledExecutorService;
+            import java.util.concurrent.ScheduledFuture;
+            import java.util.concurrent.TimeUnit;
+            
+/* 21 */    public final class l101i0IllIO1 extends l0oOo0Ili1i implements ScheduledExecutorService {
+                public ScheduledExecutorService I00iiI;
+
+                @Override
+                public final void close() throws InterruptedException {
+/* 5 */             if (this == ForkJoinPool.commonPool()) {
+/* 55 */                return;
+                    }
+/* 8 */             ExecutorService executorService = this.I00iOIl;
+/* 14 */            if (executorService.isTerminated()) {
+/* 55 */                return;
+                    }
+/* 16 */            shutdown();
+/* 19 */            boolean zAwaitTermination = false;
+/* 20 */            boolean z = false;
+/* 21 */            while (!zAwaitTermination) {
+                        try {
+/* 27 */                    zAwaitTermination = executorService.awaitTermination(1L, TimeUnit.DAYS);
+                        } catch (InterruptedException unused) {
+/* 33 */                    if (!z) {
+/* 35 */                        shutdownNow();
+                            }
+/* 38 */                    z = true;
+                        }
+                    }
+/* 40 */            if (z) {
+/* 46 */                Thread.currentThread().interrupt();
+                    }
+                }
+
+                @Override
+                public final ScheduledFuture schedule(Runnable runnable, long j, TimeUnit timeUnit) {
+/* 1 */             ScheduledExecutorService scheduledExecutorService = this.I00iiI;
+/* 10 */            l10o01O l10o01o = new l10o01O(Executors.callable(runnable, null));
+/* 19 */            return new l0oloi1I0Oi1(l10o01o, scheduledExecutorService.schedule(l10o01o, j, timeUnit));
+                }
+
+                @Override
+                public final ScheduledFuture scheduleAtFixedRate(Runnable runnable, long j, long j2, TimeUnit timeUnit) {
+/* 4 */             l0ooiO0I0 l0ooio0i0 = new l0ooiO0I0(runnable);
+/* 15 */            return new l0oloi1I0Oi1(l0ooio0i0, this.I00iiI.scheduleAtFixedRate(l0ooio0i0, j, j2, timeUnit));
+                }
+
+                @Override
+                public final ScheduledFuture scheduleWithFixedDelay(Runnable runnable, long j, long j2, TimeUnit timeUnit) {
+/* 4 */             l0ooiO0I0 l0ooio0i0 = new l0ooiO0I0(runnable);
+/* 15 */            return new l0oloi1I0Oi1(l0ooio0i0, this.I00iiI.scheduleWithFixedDelay(l0ooio0i0, j, j2, timeUnit));
+                }
+
+                @Override
+/* 22 */        public final ScheduledFuture schedule(Callable callable, long j, TimeUnit timeUnit) {
+/* 24 */            l10o01O l10o01o = new l10o01O(callable);
+/* 26 */            return new l0oloi1I0Oi1(l10o01o, this.I00iiI.schedule(l10o01o, j, timeUnit));
+                }
+            }

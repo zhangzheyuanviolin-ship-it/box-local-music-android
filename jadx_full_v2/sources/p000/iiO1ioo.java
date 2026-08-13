@@ -1,0 +1,45 @@
+            package p000;
+            
+            public final class iiO1ioo extends ii0OoOo10 {
+                private static final iiO1ioo zzb;
+                private int zzd;
+                private ii0i1l11 zze = ii0oOIO0OliO.I00iio;
+                private iiO1iiiO0 zzf;
+                private float zzg;
+                private int zzh;
+                private boolean zzi;
+                private boolean zzj;
+
+                static {
+/* 3 */             iiO1ioo iio1ioo = new iiO1ioo();
+/* 6 */             zzb = iio1ioo;
+/* 10 */            ii0OoOo10.I000lI(iiO1ioo.class, iio1ioo);
+/* 13 */            iiO0o0ilI iio0o0iliI001IIilI0O = iiO0o0ilI.I001IIilI0O();
+/* 17 */            ii10iIl ii10iil = ii10iIl.I00iiO;
+/* 19 */            if (iio0o0iliI001IIilI0O != null) {
+/* 21 */                return;
+                    }
+/* 24 */            I000II.I000iOII("Null containingTypeDefaultInstance");
+                }
+
+                @Override
+                public final Object I0010I0i(int i, ii0OoOo10 ii0oooo10) {
+                    int i2 = i - 1;
+/* 3 */             if (i2 == 0) {
+/* 69 */                return (byte) 1;
+                    }
+/* 6 */             if (i2 == 2) {
+/* 64 */                return new ii0oOi0(zzb, "\u0001\u0006\u0000\u0001\u0001\u0006\u0006\u0000\u0001\u0000\u0001\u001b\u0002ဇ\u0003\u0003ဉ\u0000\u0004ခ\u0001\u0005ဇ\u0004\u0006᠌\u0002", new Object[]{"zzd", "zze", iiO1iiiO0.class, "zzi", "zzf", "zzg", "zzj", "zzh", iiII1i00iIOo.I0010o});
+                    }
+/* 9 */             if (i2 == 3) {
+/* 32 */                return new iiO1ioo();
+                    }
+/* 12 */            if (i2 == 4) {
+/* 26 */                return new iiIliIi010Il(zzb);
+                    }
+/* 15 */            if (i2 != 5) {
+/* 17 */                return null;
+                    }
+/* 19 */            return zzb;
+                }
+            }

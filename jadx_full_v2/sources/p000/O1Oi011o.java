@@ -1,0 +1,138 @@
+            package p000;
+
+            import java.nio.charset.Charset;
+            import java.util.Arrays;
+            import java.util.Collections;
+            import java.util.LinkedHashMap;
+            import java.util.Map;
+            import java.util.Set;
+            
+            public final class O1Oi011o extends LinkedHashMap {
+                public static final O1Oi011o I00iiI;
+                public boolean I00iOIl = true;
+
+                static {
+/* 3 */             O1Oi011o o1Oi011o = new O1Oi011o();
+/* 6 */             I00iiI = o1Oi011o;
+/* 9 */             o1Oi011o.I00iOIl = false;
+                }
+
+                public final void I00000oIO() {
+/* 3 */             if (this.I00iOIl) {
+/* 5 */                 return;
+                    }
+/* 6 */             OIiilo1Ool0o.I000lI();
+                }
+
+                public final O1Oi011o I00000oOI() {
+/* 5 */             if (isEmpty()) {
+/* 9 */                 return new O1Oi011o();
+                    }
+/* 15 */            O1Oi011o o1Oi011o = new O1Oi011o(this);
+/* 19 */            o1Oi011o.I00iOIl = true;
+/* 55 */            return o1Oi011o;
+                }
+
+                @Override
+                public final void clear() {
+/* 1 */             I00000oIO();
+/* 4 */             super.clear();
+                }
+
+                @Override
+                public final Set entrySet() {
+                    return isEmpty() ? Collections.EMPTY_SET : super.entrySet();
+                }
+
+                @Override
+                public final boolean equals(Object obj) {
+/* 3 */             if (!(obj instanceof Map)) {
+/* 90 */                return false;
+                    }
+/* 5 */             Map map = (Map) obj;
+/* 7 */             if (this == map) {
+/* 88 */                return true;
+                    }
+/* 18 */            if (size() != map.size()) {
+/* 90 */                return false;
+                    }
+/* 33 */            for (Map.Entry entry : entrySet()) {
+/* 49 */                if (!map.containsKey(entry.getKey())) {
+/* 90 */                    return false;
+                        }
+/* 52 */                Object value = entry.getValue();
+/* 60 */                Object obj2 = map.get(entry.getKey());
+/* 85 */                if (!(((value instanceof byte[]) && (obj2 instanceof byte[])) ? Arrays.equals((byte[]) value, (byte[]) obj2) : value.equals(obj2))) {
+/* 90 */                    return false;
+                        }
+                    }
+/* 88 */            return true;
+                }
+
+                @Override
+                public final int hashCode() {
+                    int iHashCode;
+/* 10 */            int i = 0;
+/* 15 */            for (Map.Entry entry : entrySet()) {
+/* 23 */                Object key = entry.getKey();
+/* 29 */                int iHashCode2 = 1;
+/* 30 */                if (key instanceof byte[]) {
+/* 32 */                    byte[] bArr = (byte[]) key;
+/* 34 */                    int length = bArr.length;
+/* 35 */                    Charset charset = IoolIIolo1lI.I00000oIO;
+/* 38 */                    iHashCode = length;
+/* 39 */                    for (byte b : bArr) {
+/* 45 */                        iHashCode = (iHashCode * 31) + b;
+                            }
+/* 49 */                    if (iHashCode == 0) {
+/* 51 */                        iHashCode = 1;
+                            }
+                        } else {
+/* 53 */                    iHashCode = key.hashCode();
+                        }
+/* 57 */                Object value = entry.getValue();
+/* 63 */                if (value instanceof byte[]) {
+/* 65 */                    byte[] bArr2 = (byte[]) value;
+/* 67 */                    int length2 = bArr2.length;
+/* 68 */                    Charset charset2 = IoolIIolo1lI.I00000oIO;
+/* 71 */                    int i2 = length2;
+/* 72 */                    for (byte b2 : bArr2) {
+/* 78 */                        i2 = (i2 * 31) + b2;
+                            }
+/* 82 */                    if (i2 != 0) {
+/* 85 */                        iHashCode2 = i2;
+                            }
+                        } else {
+/* 87 */                    iHashCode2 = value.hashCode();
+                        }
+/* 93 */                i += iHashCode ^ iHashCode2;
+                    }
+/* 110 */           return i;
+                }
+
+                @Override
+                public final Object put(Object obj, Object obj2) {
+/* 1 */             I00000oIO();
+/* 4 */             Charset charset = IoolIIolo1lI.I00000oIO;
+/* 6 */             obj.getClass();
+/* 9 */             obj2.getClass();
+/* 12 */            return super.put(obj, obj2);
+                }
+
+                @Override
+                public final void putAll(Map map) {
+/* 1 */             I00000oIO();
+/* 16 */            for (Object obj : map.keySet()) {
+/* 22 */                Charset charset = IoolIIolo1lI.I00000oIO;
+/* 24 */                obj.getClass();
+/* 31 */                map.get(obj).getClass();
+                    }
+/* 35 */            super.putAll(map);
+                }
+
+                @Override
+                public final Object remove(Object obj) {
+/* 1 */             I00000oIO();
+/* 4 */             return super.remove(obj);
+                }
+            }

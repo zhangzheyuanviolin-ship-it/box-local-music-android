@@ -1,0 +1,72 @@
+            package p000;
+            
+            public abstract class OIl1Il0iI {
+                public static final IOOl0iI I00000oIO;
+                public static final Oioi110io0l I00000oOI;
+                public static final IOOl0iI I0000Il00O;
+                public static final IOOl0iI I0000O;
+                public static final IOOl0iI I0000oI00;
+                public static final IOOl0iI I0001Ioi1lo;
+                public static final IOOl0iI I000II;
+                public static final IOOl0iI I000O01llI0;
+                public static final IOOl0iI I000OOo1O;
+                public static final IOOl0iI I000OiO;
+                public static final IOOl0iI I000iOII;
+                public static final IOOl0iI I000l1;
+                public static final IOOl0iI I000lI;
+                public static final IOOl0iI I000o00OoI0I;
+                public static final IOOl0iI I000oI1ioi;
+                public static final IOOl0iI I00100l0;
+                public static final IOOl0iI I00100o1O0lo;
+                public static final IOOl0iI I0010I0i;
+                public static final IOOl0iI I0010o;
+                public static final IOOl0iI I00111O;
+                public static final IOOl0iI I001IIilI0O;
+                public static final IOOl0iI I001IO000;
+                public static final IOOl0iI I001i1O0Ol;
+                public static final IOOl0iI I001i1lo1io;
+                public static final IOOl0iI I001iOo1i0O;
+                public static final IOOl0iI I001l0I00;
+                public static final IOOl0iI I001lIiIIo1O;
+                public static final IOOl0iI I001lllioOl;
+                public static final IOOl0iI I001lloI;
+                public static final IOOl0iI I00II0Ol1O0l;
+
+                static {
+/* 1 */             IOOl0iI iOOl0iI = IOOl0iI.I00ll1;
+/* 3 */             I00000oIO = iOOl0iI;
+/* 7 */             I00000oOI = Oioi110io0l.I00iiO;
+/* 9 */             IOOl0iI iOOl0iI2 = IOOl0iI.I00ioIO;
+/* 11 */            I0000Il00O = iOOl0iI2;
+/* 13 */            I0000O = iOOl0iI2;
+/* 15 */            I0000oI00 = iOOl0iI2;
+/* 17 */            I0001Ioi1lo = iOOl0iI2;
+/* 19 */            I000II = iOOl0iI2;
+/* 21 */            I000O01llI0 = iOOl0iI2;
+/* 23 */            IOOl0iI iOOl0iI3 = IOOl0iI.I00iOIl;
+/* 25 */            I000OOo1O = iOOl0iI3;
+/* 27 */            I000OiO = iOOl0iI2;
+/* 29 */            I000iOII = iOOl0iI3;
+/* 31 */            IOOl0iI iOOl0iI4 = IOOl0iI.I00l0I0l0lO1;
+/* 33 */            I000l1 = iOOl0iI4;
+/* 35 */            I000lI = iOOl0iI3;
+/* 37 */            I000o00OoI0I = iOOl0iI3;
+/* 39 */            I000oI1ioi = iOOl0iI3;
+/* 41 */            I00100l0 = iOOl0iI2;
+/* 43 */            I00100o1O0lo = iOOl0iI;
+/* 45 */            I0010I0i = iOOl0iI4;
+/* 47 */            I0010o = iOOl0iI;
+/* 49 */            I00111O = iOOl0iI4;
+/* 51 */            I001IIilI0O = iOOl0iI4;
+/* 53 */            I001IO000 = iOOl0iI2;
+/* 55 */            OoOo1o1o ooOo1o1o = OoOo1o1o.I00iOIl;
+/* 57 */            I001i1O0Ol = iOOl0iI4;
+/* 59 */            I001i1lo1io = iOOl0iI4;
+/* 61 */            I001iOo1i0O = iOOl0iI4;
+/* 63 */            I001l0I00 = iOOl0iI4;
+/* 65 */            I001lIiIIo1O = iOOl0iI4;
+/* 69 */            I001lllioOl = IOOl0iI.I00l0OO0IO;
+/* 71 */            I001lloI = iOOl0iI4;
+/* 73 */            I00II0Ol1O0l = iOOl0iI4;
+                }
+            }

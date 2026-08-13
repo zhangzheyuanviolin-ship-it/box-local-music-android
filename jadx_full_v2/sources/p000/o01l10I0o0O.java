@@ -1,0 +1,4 @@
+            package p000;
+            
+            public abstract class o01l10I0o0O {
+            }

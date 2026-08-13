@@ -1,0 +1,25 @@
+            package p000;
+            
+            public enum loo00o implements l0i10l {
+                SAPI_LANGUAGE_UNKNOWN(0),
+                SAPI_LANGUAGE_ENGLISH(1),
+                SAPI_LANGUAGE_JAPANESE(2),
+                SAPI_LANGUAGE_KOREAN(3),
+                SAPI_LANGUAGE_GERMAN(4),
+                SAPI_LANGUAGE_FRENCH(5),
+                SAPI_LANGUAGE_ITALIAN(6),
+                SAPI_LANGUAGE_SPANISH(7),
+                SAPI_LANGUAGE_CHINESE(8),
+                SAPI_LANGUAGE_PORTUGUESE(9);
+
+                public final int I00iOIl;
+
+                loo00o(int i) {
+/* 4 */             this.I00iOIl = i;
+                }
+
+                @Override
+                public final int zza() {
+/* 1 */             return this.I00iOIl;
+                }
+            }

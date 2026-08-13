@@ -1,0 +1,50 @@
+jadx.core.utils.exceptions.JadxRuntimeException: Failed to generate code for class: p000.O0IO00o0OI0
+	at jadx.core.ProcessClass.generateCode(ProcessClass.java:123)
+	at jadx.core.dex.nodes.ClassNode.generateClassCode(ClassNode.java:401)
+	at jadx.core.dex.nodes.ClassNode.decompile(ClassNode.java:389)
+	at jadx.core.dex.nodes.ClassNode.getCode(ClassNode.java:339)
+Caused by: jadx.core.utils.exceptions.JadxRuntimeException: Code generation error after restart
+	at jadx.core.codegen.CodeGen.wrapCodeGen(CodeGen.java:52)
+	at jadx.core.codegen.CodeGen.generateJavaCode(CodeGen.java:34)
+	at jadx.core.codegen.CodeGen.generate(CodeGen.java:22)
+	at jadx.core.ProcessClass.process(ProcessClass.java:79)
+	at jadx.core.ProcessClass.generateCode(ProcessClass.java:117)
+	... 3 more
+Caused by: jadx.core.utils.exceptions.JadxRuntimeException: Method generation error
+	at jadx.core.codegen.ClassGen.addMethod(ClassGen.java:338)
+	at jadx.core.codegen.ClassGen.lambda$addInnerClsAndMethods$3(ClassGen.java:301)
+	at java.base/java.util.stream.ForEachOps$ForEachOp$OfRef.accept(ForEachOps.java:183)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.stream.SortedOps$RefSortingSink.end(SortedOps.java:395)
+	at java.base/java.util.stream.Sink$ChainedReference.end(Sink.java:258)
+Caused by: jadx.core.utils.exceptions.CodegenException: Error generate insn: 0x0027: IF  (r0v4 O0II1001o) == (null O0II1001o)  -> B:21:0x0036 A[HIDDEN] (LINE:40) in method: O0IO00o0OI0.I00000oOI(OOOo0i11Ol, OI1IlOlol, Oi0Oooi, boolean):O0I1IOiOIo, file: classes2.dex
+	at jadx.core.codegen.InsnGen.makeInsn(InsnGen.java:310)
+	at jadx.core.codegen.InsnGen.makeInsn(InsnGen.java:273)
+	at jadx.core.codegen.RegionGen.makeSimpleBlock(RegionGen.java:94)
+	at jadx.core.dex.nodes.IBlock.generate(IBlock.java:15)
+	at jadx.core.codegen.RegionGen.makeRegion(RegionGen.java:66)
+	at jadx.core.dex.regions.Region.generate(Region.java:35)
+	at jadx.core.codegen.RegionGen.makeRegion(RegionGen.java:66)
+	at jadx.core.codegen.RegionGen.makeRegionIndent(RegionGen.java:83)
+	at jadx.core.codegen.RegionGen.makeIf(RegionGen.java:126)
+	at jadx.core.dex.regions.conditions.IfRegion.generate(IfRegion.java:90)
+	at jadx.core.codegen.RegionGen.makeRegion(RegionGen.java:66)
+	at jadx.core.dex.regions.Region.generate(Region.java:35)
+	at jadx.core.codegen.RegionGen.makeRegion(RegionGen.java:66)
+	at jadx.core.codegen.RegionGen.makeRegionIndent(RegionGen.java:83)
+	at jadx.core.codegen.RegionGen.makeIf(RegionGen.java:126)
+	at jadx.core.dex.regions.conditions.IfRegion.generate(IfRegion.java:90)
+	at jadx.core.codegen.RegionGen.makeRegion(RegionGen.java:66)
+	at jadx.core.dex.regions.Region.generate(Region.java:35)
+	at jadx.core.codegen.RegionGen.makeRegion(RegionGen.java:66)
+	at jadx.core.codegen.MethodGen.addRegionInsns(MethodGen.java:298)
+	at jadx.core.codegen.MethodGen.addInstructions(MethodGen.java:282)
+	at jadx.core.codegen.ClassGen.addMethodCode(ClassGen.java:410)
+	at jadx.core.codegen.ClassGen.addMethod(ClassGen.java:335)
+	... 5 more
+Caused by: jadx.core.utils.exceptions.CodegenException: IF instruction can be used only in fallback mode
+	at jadx.core.codegen.InsnGen.fallbackOnlyInsn(InsnGen.java:698)
+	at jadx.core.codegen.InsnGen.makeInsnBody(InsnGen.java:545)
+	at jadx.core.codegen.InsnGen.makeInsn(InsnGen.java:303)
+	... 27 more
+

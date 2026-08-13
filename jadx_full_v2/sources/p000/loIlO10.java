@@ -1,0 +1,128 @@
+            package p000;
+
+            import java.lang.invoke.VarHandle;
+            
+            public final class loIlO10 implements OIOi0lOI {
+                public static final loIlO10 I00000oIO = new loIlO10();
+                public static final IlIO00o1 I00000oOI;
+                public static final IlIO00o1 I0000Il00O;
+                public static final IlIO00o1 I0000O;
+                public static final IlIO00o1 I0000oI00;
+                public static final IlIO00o1 I0001Ioi1lo;
+                public static final IlIO00o1 I000II;
+                public static final IlIO00o1 I000O01llI0;
+                public static final IlIO00o1 I000OOo1O;
+                public static final IlIO00o1 I000OiO;
+                public static final IlIO00o1 I000iOII;
+                public static final IlIO00o1 I000l1;
+                public static final IlIO00o1 I000lI;
+                public static final IlIO00o1 I000o00OoI0I;
+                public static final IlIO00o1 I000oI1ioi;
+
+                static {
+/* 10 */            OlOO1i11110 olOO1i11110I00000oIO = IlIO00o1.I00000oIO("appId");
+/* 16 */            l11OIolOi l11oioloi = new l11OIolOi();
+/* 20 */            l11oioloi.I0000O = 1;
+/* 22 */            VarHandle.storeStoreFence();
+/* 25 */            olOO1i11110I00000oIO.I001i1lo1io(l11oioloi);
+/* 32 */            I00000oOI = olOO1i11110I00000oIO.I000O01llI0();
+/* 36 */            OlOO1i11110 olOO1i11110I00000oIO2 = IlIO00o1.I00000oIO("appVersion");
+/* 42 */            l11OIolOi l11oioloi2 = new l11OIolOi();
+/* 46 */            l11oioloi2.I0000O = 2;
+/* 48 */            VarHandle.storeStoreFence();
+/* 51 */            olOO1i11110I00000oIO2.I001i1lo1io(l11oioloi2);
+/* 58 */            I0000Il00O = olOO1i11110I00000oIO2.I000O01llI0();
+/* 62 */            OlOO1i11110 olOO1i11110I00000oIO3 = IlIO00o1.I00000oIO("firebaseProjectId");
+/* 68 */            l11OIolOi l11oioloi3 = new l11OIolOi();
+/* 72 */            l11oioloi3.I0000O = 3;
+/* 74 */            VarHandle.storeStoreFence();
+/* 77 */            olOO1i11110I00000oIO3.I001i1lo1io(l11oioloi3);
+/* 84 */            I0000O = olOO1i11110I00000oIO3.I000O01llI0();
+/* 88 */            OlOO1i11110 olOO1i11110I00000oIO4 = IlIO00o1.I00000oIO("mlSdkVersion");
+/* 94 */            l11OIolOi l11oioloi4 = new l11OIolOi();
+/* 98 */            l11oioloi4.I0000O = 4;
+/* 100 */           VarHandle.storeStoreFence();
+/* 103 */           olOO1i11110I00000oIO4.I001i1lo1io(l11oioloi4);
+/* 110 */           I0000oI00 = olOO1i11110I00000oIO4.I000O01llI0();
+/* 114 */           OlOO1i11110 olOO1i11110I00000oIO5 = IlIO00o1.I00000oIO("tfliteSchemaVersion");
+/* 120 */           l11OIolOi l11oioloi5 = new l11OIolOi();
+/* 124 */           l11oioloi5.I0000O = 5;
+/* 126 */           VarHandle.storeStoreFence();
+/* 129 */           olOO1i11110I00000oIO5.I001i1lo1io(l11oioloi5);
+/* 136 */           I0001Ioi1lo = olOO1i11110I00000oIO5.I000O01llI0();
+/* 140 */           OlOO1i11110 olOO1i11110I00000oIO6 = IlIO00o1.I00000oIO("gcmSenderId");
+/* 146 */           l11OIolOi l11oioloi6 = new l11OIolOi();
+/* 150 */           l11oioloi6.I0000O = 6;
+/* 152 */           VarHandle.storeStoreFence();
+/* 155 */           olOO1i11110I00000oIO6.I001i1lo1io(l11oioloi6);
+/* 162 */           I000II = olOO1i11110I00000oIO6.I000O01llI0();
+/* 166 */           OlOO1i11110 olOO1i11110I00000oIO7 = IlIO00o1.I00000oIO("apiKey");
+/* 172 */           l11OIolOi l11oioloi7 = new l11OIolOi();
+/* 176 */           l11oioloi7.I0000O = 7;
+/* 178 */           VarHandle.storeStoreFence();
+/* 181 */           olOO1i11110I00000oIO7.I001i1lo1io(l11oioloi7);
+/* 188 */           I000O01llI0 = olOO1i11110I00000oIO7.I000O01llI0();
+/* 192 */           OlOO1i11110 olOO1i11110I00000oIO8 = IlIO00o1.I00000oIO("languages");
+/* 198 */           l11OIolOi l11oioloi8 = new l11OIolOi();
+/* 203 */           l11oioloi8.I0000O = 8;
+/* 205 */           VarHandle.storeStoreFence();
+/* 208 */           olOO1i11110I00000oIO8.I001i1lo1io(l11oioloi8);
+/* 215 */           I000OOo1O = olOO1i11110I00000oIO8.I000O01llI0();
+/* 219 */           OlOO1i11110 olOO1i11110I00000oIO9 = IlIO00o1.I00000oIO("mlSdkInstanceId");
+/* 225 */           l11OIolOi l11oioloi9 = new l11OIolOi();
+/* 230 */           l11oioloi9.I0000O = 9;
+/* 232 */           VarHandle.storeStoreFence();
+/* 235 */           olOO1i11110I00000oIO9.I001i1lo1io(l11oioloi9);
+/* 242 */           I000OiO = olOO1i11110I00000oIO9.I000O01llI0();
+/* 246 */           OlOO1i11110 olOO1i11110I00000oIO10 = IlIO00o1.I00000oIO("isClearcutClient");
+/* 252 */           l11OIolOi l11oioloi10 = new l11OIolOi();
+/* 257 */           l11oioloi10.I0000O = 10;
+/* 259 */           VarHandle.storeStoreFence();
+/* 262 */           olOO1i11110I00000oIO10.I001i1lo1io(l11oioloi10);
+/* 269 */           I000iOII = olOO1i11110I00000oIO10.I000O01llI0();
+/* 273 */           OlOO1i11110 olOO1i11110I00000oIO11 = IlIO00o1.I00000oIO("isStandaloneMlkit");
+/* 279 */           l11OIolOi l11oioloi11 = new l11OIolOi();
+/* 284 */           l11oioloi11.I0000O = 11;
+/* 286 */           VarHandle.storeStoreFence();
+/* 289 */           olOO1i11110I00000oIO11.I001i1lo1io(l11oioloi11);
+/* 296 */           I000l1 = olOO1i11110I00000oIO11.I000O01llI0();
+/* 300 */           OlOO1i11110 olOO1i11110I00000oIO12 = IlIO00o1.I00000oIO("isJsonLogging");
+/* 306 */           l11OIolOi l11oioloi12 = new l11OIolOi();
+/* 311 */           l11oioloi12.I0000O = 12;
+/* 313 */           VarHandle.storeStoreFence();
+/* 316 */           olOO1i11110I00000oIO12.I001i1lo1io(l11oioloi12);
+/* 323 */           I000lI = olOO1i11110I00000oIO12.I000O01llI0();
+/* 327 */           OlOO1i11110 olOO1i11110I00000oIO13 = IlIO00o1.I00000oIO("buildLevel");
+/* 333 */           l11OIolOi l11oioloi13 = new l11OIolOi();
+/* 338 */           l11oioloi13.I0000O = 13;
+/* 340 */           VarHandle.storeStoreFence();
+/* 343 */           olOO1i11110I00000oIO13.I001i1lo1io(l11oioloi13);
+/* 350 */           I000o00OoI0I = olOO1i11110I00000oIO13.I000O01llI0();
+/* 354 */           OlOO1i11110 olOO1i11110I00000oIO14 = IlIO00o1.I00000oIO("optionalModuleVersion");
+/* 360 */           l11OIolOi l11oioloi14 = new l11OIolOi();
+/* 365 */           l11oioloi14.I0000O = 14;
+/* 367 */           VarHandle.storeStoreFence();
+/* 370 */           olOO1i11110I00000oIO14.I001i1lo1io(l11oioloi14);
+/* 377 */           I000oI1ioi = olOO1i11110I00000oIO14.I000O01llI0();
+                }
+
+                @Override
+                public final void encode(Object obj, Object obj2) {
+/* 1 */             o1I01i0iOo o1i01i0ioo = (o1I01i0iOo) obj;
+/* 3 */             OIOi0o oIOi0o = (OIOi0o) obj2;
+/* 9 */             oIOi0o.add(I00000oOI, o1i01i0ioo.I00000oIO);
+/* 16 */            oIOi0o.add(I0000Il00O, o1i01i0ioo.I00000oOI);
+/* 22 */            oIOi0o.add(I0000O, (Object) null);
+/* 29 */            oIOi0o.add(I0000oI00, o1i01i0ioo.I0000Il00O);
+/* 36 */            oIOi0o.add(I0001Ioi1lo, o1i01i0ioo.I0000O);
+/* 41 */            oIOi0o.add(I000II, (Object) null);
+/* 46 */            oIOi0o.add(I000O01llI0, (Object) null);
+/* 53 */            oIOi0o.add(I000OOo1O, o1i01i0ioo.I0000oI00);
+/* 60 */            oIOi0o.add(I000OiO, o1i01i0ioo.I0001Ioi1lo);
+/* 67 */            oIOi0o.add(I000iOII, o1i01i0ioo.I000II);
+/* 74 */            oIOi0o.add(I000l1, o1i01i0ioo.I000O01llI0);
+/* 81 */            oIOi0o.add(I000lI, o1i01i0ioo.I000OOo1O);
+/* 88 */            oIOi0o.add(I000o00OoI0I, o1i01i0ioo.I000OiO);
+/* 95 */            oIOi0o.add(I000oI1ioi, o1i01i0ioo.I000iOII);
+                }
+            }

@@ -1,0 +1,70 @@
+            package p000;
+
+            import java.util.HashMap;
+            
+            public final class IiI1I1I1l {
+                static {
+/* 3 */             HashMap map = new HashMap();
+/* 8 */             HashMap map2 = new HashMap();
+/* 15 */            map.put(OIo0iOol.I00000oOI, "RSASSA-PSS");
+/* 22 */            map.put(IioO0OO0lII1.I00000oIO, "ED25519");
+/* 29 */            map.put(IioO0OO0lII1.I00000oOI, "ED448");
+/* 41 */            map.put(new I00O0i0ii("1.2.840.113549.1.1.5"), "SHA1WITHRSA");
+/* 48 */            map.put(OIo0iOol.I0001Ioi1lo, "SHA224WITHRSA");
+/* 55 */            map.put(OIo0iOol.I0000Il00O, "SHA256WITHRSA");
+/* 62 */            map.put(OIo0iOol.I0000O, "SHA384WITHRSA");
+/* 69 */            map.put(OIo0iOol.I0000oI00, "SHA512WITHRSA");
+/* 76 */            map.put(IIOlll0i.I00000oIO, "SHAKE128WITHRSAPSS");
+/* 83 */            map.put(IIOlll0i.I00000oOI, "SHAKE256WITHRSAPSS");
+/* 90 */            map.put(Ii0i0o00.I000OiO, "GOST3411WITHGOST3410");
+/* 97 */            map.put(Ii0i0o00.I000iOII, "GOST3411WITHECGOST3410");
+/* 104 */           map.put(OiI0I0OOoO0.I0000oI00, "GOST3411-2012-256WITHECGOST3410-2012-256");
+/* 111 */           map.put(OiI0I0OOoO0.I0001Ioi1lo, "GOST3411-2012-512WITHECGOST3410-2012-512");
+/* 118 */           map.put(I1lll1O10O.I00000oIO, "SHA1WITHPLAIN-ECDSA");
+/* 125 */           map.put(I1lll1O10O.I00000oOI, "SHA224WITHPLAIN-ECDSA");
+/* 132 */           map.put(I1lll1O10O.I0000Il00O, "SHA256WITHPLAIN-ECDSA");
+/* 139 */           map.put(I1lll1O10O.I0000O, "SHA384WITHPLAIN-ECDSA");
+/* 146 */           map.put(I1lll1O10O.I0000oI00, "SHA512WITHPLAIN-ECDSA");
+/* 153 */           map.put(I1lll1O10O.I000II, "SHA3-224WITHPLAIN-ECDSA");
+/* 160 */           map.put(I1lll1O10O.I000O01llI0, "SHA3-256WITHPLAIN-ECDSA");
+/* 167 */           map.put(I1lll1O10O.I000OOo1O, "SHA3-384WITHPLAIN-ECDSA");
+/* 174 */           map.put(I1lll1O10O.I000OiO, "SHA3-512WITHPLAIN-ECDSA");
+/* 181 */           map.put(I1lll1O10O.I0001Ioi1lo, "RIPEMD160WITHPLAIN-ECDSA");
+/* 188 */           map.put(IioIl1iIoIOI.I00000oIO, "SHA1WITHCVC-ECDSA");
+/* 195 */           map.put(IioIl1iIoIOI.I00000oOI, "SHA224WITHCVC-ECDSA");
+/* 202 */           map.put(IioIl1iIoIOI.I0000Il00O, "SHA256WITHCVC-ECDSA");
+/* 209 */           map.put(IioIl1iIoIOI.I0000O, "SHA384WITHCVC-ECDSA");
+/* 216 */           map.put(IioIl1iIoIOI.I0000oI00, "SHA512WITHCVC-ECDSA");
+/* 223 */           map.put(O00IlO1.I00000oIO, "XMSS");
+/* 230 */           map.put(O00IlO1.I00000oOI, "XMSSMT");
+/* 237 */           map.put(OloOI0i.I0000oI00, "RIPEMD128WITHRSA");
+/* 244 */           map.put(OloOI0i.I0000O, "RIPEMD160WITHRSA");
+/* 251 */           map.put(OloOI0i.I0001Ioi1lo, "RIPEMD256WITHRSA");
+/* 263 */           map.put(new I00O0i0ii("1.2.840.113549.1.1.4"), "MD5WITHRSA");
+/* 275 */           map.put(new I00O0i0ii("1.2.840.113549.1.1.2"), "MD2WITHRSA");
+/* 287 */           map.put(new I00O0i0ii("1.2.840.10040.4.3"), "SHA1WITHDSA");
+/* 294 */           map.put(i01lliOIo1O.I00000oIO, "SHA1WITHECDSA");
+/* 301 */           map.put(i01lliOIo1O.I00000oOI, "SHA224WITHECDSA");
+/* 308 */           map.put(i01lliOIo1O.I0000Il00O, "SHA256WITHECDSA");
+/* 315 */           map.put(i01lliOIo1O.I0000O, "SHA384WITHECDSA");
+/* 322 */           map.put(i01lliOIo1O.I0000oI00, "SHA512WITHECDSA");
+/* 329 */           map.put(IIOlll0i.I0000Il00O, "SHAKE128WITHECDSA");
+/* 336 */           map.put(IIOlll0i.I0000O, "SHAKE256WITHECDSA");
+/* 341 */           map.put(OIOi01IIiI.I0000O, "SHA1WITHRSA");
+/* 346 */           map.put(OIOi01IIiI.I0000Il00O, "SHA1WITHDSA");
+/* 353 */           map.put(OI1II0.I001iOo1i0O, "SHA224WITHDSA");
+/* 360 */           map.put(OI1II0.I001l0I00, "SHA256WITHDSA");
+/* 367 */           map2.put(OIOi01IIiI.I00000oOI, "SHA1");
+/* 374 */           map2.put(OI1II0.I0000O, "SHA224");
+/* 381 */           map2.put(OI1II0.I00000oIO, "SHA256");
+/* 388 */           map2.put(OI1II0.I00000oOI, "SHA384");
+/* 395 */           map2.put(OI1II0.I0000Il00O, "SHA512");
+/* 402 */           map2.put(OI1II0.I0000oI00, "SHA3-224");
+/* 409 */           map2.put(OI1II0.I0001Ioi1lo, "SHA3-256");
+/* 416 */           map2.put(OI1II0.I000II, "SHA3-384");
+/* 423 */           map2.put(OI1II0.I000O01llI0, "SHA3-512");
+/* 430 */           map2.put(OloOI0i.I00000oOI, "RIPEMD128");
+/* 437 */           map2.put(OloOI0i.I00000oIO, "RIPEMD160");
+/* 444 */           map2.put(OloOI0i.I0000Il00O, "RIPEMD256");
+                }
+            }

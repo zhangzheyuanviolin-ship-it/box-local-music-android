@@ -1,0 +1,21 @@
+            package p000;
+            
+            public final class IIill0I0 extends IOoilo {
+                public IOi10loi I00iOIl;
+                public Object I00iiI;
+                public final IIilllloil1 I00iiO;
+                public int I00iio;
+
+                /* JADX WARN: 'super' call moved to the top of the method (can break code semantics) */
+                public IIill0I0(IIilllloil1 iIilllloil1, IOoilo iOoilo) {
+/* 3 */             super(iOoilo);
+/* 1 */             this.I00iiO = iIilllloil1;
+                }
+
+                @Override
+                public final Object invokeSuspend(Object obj) {
+/* 1 */             this.I00iiI = obj;
+                    this.I00iio |= Integer.MIN_VALUE;
+/* 14 */            return this.I00iiO.I00000oIO(0L, this);
+                }
+            }
