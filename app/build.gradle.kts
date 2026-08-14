@@ -1,5 +1,14 @@
+import java.util.Base64
+
 plugins {
   id("com.android.application")
+}
+
+val signingSource = rootProject.file("signing/boxlocal-dev.jks.b64")
+val signingFile = layout.buildDirectory.file("persistent-signing/boxlocal-dev.jks").get().asFile
+if (!signingFile.exists()) {
+  signingFile.parentFile.mkdirs()
+  signingFile.writeBytes(Base64.getMimeDecoder().decode(signingSource.readText()))
 }
 
 android {
@@ -10,9 +19,29 @@ android {
     applicationId = "com.boxlocal.music"
     minSdk = 26
     targetSdk = 35
-    versionCode = 5
-    versionName = "0.4.0"
+    versionCode = 6
+    versionName = "0.4.1"
     ndk { abiFilters += setOf("arm64-v8a") }
+  }
+
+  signingConfigs {
+    create("persistentSideload") {
+      storeFile = signingFile
+      storePassword = "boxlocaldev"
+      keyAlias = "boxlocaldev"
+      keyPassword = "boxlocaldev"
+    }
+  }
+
+  buildTypes {
+    getByName("debug") {
+      signingConfig = signingConfigs.getByName("persistentSideload")
+    }
+    getByName("release") {
+      signingConfig = signingConfigs.getByName("persistentSideload")
+      isMinifyEnabled = false
+      isShrinkResources = false
+    }
   }
 
   compileOptions {
