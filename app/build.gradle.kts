@@ -4,6 +4,10 @@ plugins {
   id("com.android.application")
 }
 
+providers.exec {
+  commandLine("python3", rootProject.file("scripts/patch_041.py").absolutePath)
+}.result.get().assertNormalExitValue()
+
 val signingSource = rootProject.file("signing/boxlocal-dev.jks.b64")
 val signingFile = layout.buildDirectory.file("persistent-signing/boxlocal-dev.jks").get().asFile
 if (!signingFile.exists()) {
