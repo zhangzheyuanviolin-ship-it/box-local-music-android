@@ -24,6 +24,10 @@ providers.exec {
   commandLine("python3", rootProject.file("scripts/patch_044.py").absolutePath)
 }.result.get().assertNormalExitValue()
 
+providers.exec {
+  commandLine("python3", rootProject.file("scripts/patch_045.py").absolutePath)
+}.result.get().assertNormalExitValue()
+
 val signingSource = rootProject.file("signing/boxlocal-dev.jks.b64")
 val signingFile = layout.buildDirectory.file("persistent-signing/boxlocal-dev.jks").get().asFile
 if (!signingFile.exists()) {
@@ -39,8 +43,8 @@ android {
     applicationId = "com.boxlocal.music"
     minSdk = 26
     targetSdk = 35
-    versionCode = 9
-    versionName = "0.4.4"
+    versionCode = 10
+    versionName = "0.4.5"
     ndk { abiFilters += setOf("arm64-v8a") }
   }
 
@@ -77,5 +81,5 @@ android {
 }
 
 dependencies {
-  implementation("com.google.ai.edge.litert:litert:2.1.5")
+  implementation("com.google.ai.edge.litert:litert:2.1.6")
 }
