@@ -37,7 +37,7 @@ providers.exec {
 }.result.get().assertNormalExitValue()
 
 providers.exec {
-  commandLine("python3", rootProject.file("scripts/patch_047.py").absolutePath)
+  commandLine("python3", rootProject.file("scripts/patch_047b.py").absolutePath)
 }.result.get().assertNormalExitValue()
 
 val signingSource = rootProject.file("signing/boxlocal-dev.jks.b64")
