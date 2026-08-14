@@ -94,5 +94,6 @@ android {
 
 dependencies {
   implementation("com.google.ai.edge.litert:litert:2.1.6")
-  implementation("com.google.ai.edge.litert:litert-gpu:1.4.1")
+  implementation("com.google.ai.edge.litert:litert-gpu:2.1.6")
+  implementation("com.google.ai.edge.litert:litert-gpu-api:2.1.6")
 }
