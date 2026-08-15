@@ -44,6 +44,10 @@ providers.exec {
   commandLine("python3", rootProject.file("scripts/patch_048.py").absolutePath)
 }.result.get().assertNormalExitValue()
 
+providers.exec {
+  commandLine("python3", rootProject.file("scripts/patch_049.py").absolutePath)
+}.result.get().assertNormalExitValue()
+
 val signingSource = rootProject.file("signing/boxlocal-dev.jks.b64")
 val signingFile = layout.buildDirectory.file("persistent-signing/boxlocal-dev.jks").get().asFile
 if (!signingFile.exists()) {
@@ -59,8 +63,8 @@ android {
     applicationId = "com.boxlocal.music"
     minSdk = 26
     targetSdk = 35
-    versionCode = 13
-    versionName = "0.4.8"
+    versionCode = 14
+    versionName = "0.4.9"
     ndk { abiFilters += setOf("arm64-v8a") }
   }
 
